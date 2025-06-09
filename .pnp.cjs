@@ -40,6 +40,7 @@ const RAW_RUNTIME_STATE =
           ["globals", "npm:16.2.0"],\
           ["react", "npm:19.1.0"],\
           ["react-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:19.1.0"],\
+          ["react-router-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:7.6.2"],\
           ["tailwindcss", "npm:1.9.6"],\
           ["vite", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:6.3.5"]\
         ],\
@@ -1542,6 +1543,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["cookie", [\
+      ["npm:1.0.2", {\
+        "packageLocation": "../../../../../../../../C:/Users/Mina/AppData/Local/Yarn/Berry/cache/cookie-npm-1.0.2-7a4273d897-10c0.zip/node_modules/cookie/",\
+        "packageDependencies": [\
+          ["cookie", "npm:1.0.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["cross-spawn", [\
       ["npm:7.0.6", {\
         "packageLocation": "../../../../../../../../C:/Users/Mina/AppData/Local/Yarn/Berry/cache/cross-spawn-npm-7.0.6-264bddf921-10c0.zip/node_modules/cross-spawn/",\
@@ -2069,6 +2079,7 @@ const RAW_RUNTIME_STATE =
           ["globals", "npm:16.2.0"],\
           ["react", "npm:19.1.0"],\
           ["react-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:19.1.0"],\
+          ["react-router-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:7.6.2"],\
           ["tailwindcss", "npm:1.9.6"],\
           ["vite", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:6.3.5"]\
         ],\
@@ -3360,6 +3371,61 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["react-router", [\
+      ["npm:7.6.2", {\
+        "packageLocation": "../../../../../../../../C:/Users/Mina/AppData/Local/Yarn/Berry/cache/react-router-npm-7.6.2-c79e3bd28f-10c0.zip/node_modules/react-router/",\
+        "packageDependencies": [\
+          ["react-router", "npm:7.6.2"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:af0a15276b08dd7c157c30bfa9e44f153af85c8a326da8792c13db8e7a33d1d3d9a82a7007f767242d8bd39aa2c9fe96c3d61d4633657ec9d8577813e0bdc987#npm:7.6.2", {\
+        "packageLocation": "./.yarn/__virtual__/react-router-virtual-ca6a08014a/9/C:/Users/Mina/AppData/Local/Yarn/Berry/cache/react-router-npm-7.6.2-c79e3bd28f-10c0.zip/node_modules/react-router/",\
+        "packageDependencies": [\
+          ["@types/react", "npm:19.1.6"],\
+          ["@types/react-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:19.1.6"],\
+          ["cookie", "npm:1.0.2"],\
+          ["react", "npm:19.1.0"],\
+          ["react-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:19.1.0"],\
+          ["react-router", "virtual:af0a15276b08dd7c157c30bfa9e44f153af85c8a326da8792c13db8e7a33d1d3d9a82a7007f767242d8bd39aa2c9fe96c3d61d4633657ec9d8577813e0bdc987#npm:7.6.2"],\
+          ["set-cookie-parser", "npm:2.7.1"]\
+        ],\
+        "packagePeers": [\
+          "@types/react-dom",\
+          "@types/react",\
+          "react-dom",\
+          "react"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["react-router-dom", [\
+      ["npm:7.6.2", {\
+        "packageLocation": "../../../../../../../../C:/Users/Mina/AppData/Local/Yarn/Berry/cache/react-router-dom-npm-7.6.2-b0b5af8822-10c0.zip/node_modules/react-router-dom/",\
+        "packageDependencies": [\
+          ["react-router-dom", "npm:7.6.2"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:7.6.2", {\
+        "packageLocation": "./.yarn/__virtual__/react-router-dom-virtual-af0a15276b/9/C:/Users/Mina/AppData/Local/Yarn/Berry/cache/react-router-dom-npm-7.6.2-b0b5af8822-10c0.zip/node_modules/react-router-dom/",\
+        "packageDependencies": [\
+          ["@types/react", "npm:19.1.6"],\
+          ["@types/react-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:19.1.6"],\
+          ["react", "npm:19.1.0"],\
+          ["react-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:19.1.0"],\
+          ["react-router", "virtual:af0a15276b08dd7c157c30bfa9e44f153af85c8a326da8792c13db8e7a33d1d3d9a82a7007f767242d8bd39aa2c9fe96c3d61d4633657ec9d8577813e0bdc987#npm:7.6.2"],\
+          ["react-router-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:7.6.2"]\
+        ],\
+        "packagePeers": [\
+          "@types/react-dom",\
+          "@types/react",\
+          "react-dom",\
+          "react"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["reduce-css-calc", [\
       ["npm:2.1.8", {\
         "packageLocation": "../../../../../../../../C:/Users/Mina/AppData/Local/Yarn/Berry/cache/reduce-css-calc-npm-2.1.8-e2acd211e5-10c0.zip/node_modules/reduce-css-calc/",\
@@ -3462,6 +3528,15 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../../../../../../C:/Users/Mina/AppData/Local/Yarn/Berry/cache/semver-npm-7.7.2-dfc3bc5ec9-10c0.zip/node_modules/semver/",\
         "packageDependencies": [\
           ["semver", "npm:7.7.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["set-cookie-parser", [\
+      ["npm:2.7.1", {\
+        "packageLocation": "../../../../../../../../C:/Users/Mina/AppData/Local/Yarn/Berry/cache/set-cookie-parser-npm-2.7.1-0e92d9e679-10c0.zip/node_modules/set-cookie-parser/",\
+        "packageDependencies": [\
+          ["set-cookie-parser", "npm:2.7.1"]\
         ],\
         "linkType": "HARD"\
       }]\
