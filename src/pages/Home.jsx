@@ -1,35 +1,51 @@
-import reactLogo from "../assets/react.svg";
-import viteLogo from '/vite.svg'
-import {useState} from "react";
-import '../styles/App.css'
+import React from 'react';
+import { Box, Typography, Button, Stack } from '@mui/material';
+import SchoolIcon from '@mui/icons-material/School';
+import { Link } from 'react-router';
 
-function Home() {
-  const [count, setCount] = useState(0)
-
+export default function Home() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo"/>
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo"/>
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="100vh"
+      textAlign="center"
+      gap={4}
+      px={2}
+    >
+      <SchoolIcon sx={{ fontSize: 96 }} color="primary" />
 
-export default Home;
+      <Typography variant="h3" component="h1" gutterBottom>
+        Bienvenue sur FichesFlow
+      </Typography>
+
+      <Typography variant="h6" color="text.secondary" maxWidth={600}>
+        Créez, partagez et révisez vos fiches de cours avec une touche de
+        gamification. Boostez votre mémorisation grâce à la répétition espacée !
+      </Typography>
+
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={4}>
+        <Button
+          component={Link}
+          to="/flashcards"
+          variant="contained"
+          size="large"
+          color="primary"
+        >
+          Commencer une révision
+        </Button>
+
+        <Button
+          component={Link}
+          to="/notes"
+          variant="outlined"
+          size="large"
+        >
+          Parcourir les fiches
+        </Button>
+      </Stack>
+    </Box>
+  );
+}

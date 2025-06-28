@@ -41,6 +41,7 @@ const RAW_RUNTIME_STATE =
           ["eslint-plugin-react-refresh", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:0.4.20"],\
           ["ff-app", "workspace:."],\
           ["globals", "npm:16.2.0"],\
+          ["prop-types", "npm:15.8.1"],\
           ["react", "npm:19.1.0"],\
           ["react-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:19.1.0"],\
           ["react-router", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:7.6.2"],\
@@ -2345,6 +2346,7 @@ const RAW_RUNTIME_STATE =
           ["eslint-plugin-react-refresh", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:0.4.20"],\
           ["ff-app", "workspace:."],\
           ["globals", "npm:16.2.0"],\
+          ["prop-types", "npm:15.8.1"],\
           ["react", "npm:19.1.0"],\
           ["react-dom", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:19.1.0"],\
           ["react-router", "virtual:48840dbf155b85bf32d6ef1ba7d19b1ded0a8980448880f461177c19af771954560da311b161147fe18e2b6b71b83466a1ec5e5a58f182a162fcb0d0bdf15d83#npm:7.6.2"],\
