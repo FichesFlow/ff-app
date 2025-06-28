@@ -44,6 +44,14 @@ const katexInline = {
   }
   return (
     <div className="container">
+      <label>
+        Discipline Niveau: <input name="discipline_niveau input" />
+        <hr/>
+        <br />
+        Sujet: <input name="Sujet_input" />
+        <hr/>
+        <br />
+      </label>
       <MDEditor
         value={value}
         onChange={ErreurcaractereMax}
@@ -71,7 +79,7 @@ const katexInline = {
                   />
                 );
               }
-              // Cas 2 : bloc de maths marqué ```katex```
+              // Cas 2 : bloc de maths marqué ```katex``` mais ne marche pas
               if (
                 typeof rawCode === 'string' &&
                 typeof className === 'string' &&
