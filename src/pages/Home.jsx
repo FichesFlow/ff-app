@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, Button, Stack } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import { Link } from 'react-router';
+import ColorModeToggle from "../components/ui/ColorModeToggle.jsx";
 
 export default function Home() {
   return (
@@ -45,6 +46,8 @@ export default function Home() {
         >
           Parcourir les fiches
         </Button>
+
+        <ColorModeToggle />
       </Stack>
     </Box>
   );
