@@ -5,9 +5,33 @@ import 'katex/dist/katex.css';
 import { commands } from '@uiw/react-md-editor';
 
 
-export default function FicheEditor() {
+export default function FicheEditor({onAddFlashcard}) {
   const [value, setValue] = React.useState("");
   const [error, setError] = React.useState("");
+  const [sujet, setSujet] = React.useState("");
+  const [niveau, setNiveau] = React.useState("");
+  const [theme, setTheme] = React.useState("");
+
+  {/* fonction gestion d'erreur*/}
+  const gestion_add_click = () => {
+    if (!sujet || !niveau || !value) {
+      setError("Les champs doivent être remplis");
+      return;
+    }
+    {/*Prend les valeurs actuelles de sujet, niveau et value(editeur markdown) */}
+    onAddFlashcard({
+      sujet,
+      niveau,
+      theme,
+      description : value,
+    });
+    {/*Reset les valeurs actuelles*/}
+    setSujet("");
+    setNiveau("");
+    setValue("");
+    setTheme("");
+    setError("");
+  }
   {/* Constante prenant en compte les formules mathématique.*/}
   const mathsKaTex = `This is to display the 
 \`\$\$\c = \\pm\\sqrt{a^2 + b^2}\$\$\`
@@ -45,12 +69,14 @@ const katexInline = {
   return (
     <div className="container">
       <label>
-        Discipline Niveau: <input name="discipline_niveau input" />
+        Discipline Niveau: <input name="discipline_niveau input" value={niveau} onChange={e => setNiveau(e.target.value)} />
         <hr/>
         <br />
-        Sujet: <input name="Sujet_input" />
+        Matière: <input name="Sujet_input" value={sujet} onChange={e => setSujet(e.target.value)} />
         <hr/>
         <br />
+        Thème : <input value={theme} onChange={e => setTheme(e.target.value)} />
+  <hr/><br />
       </label>
       <MDEditor
         value={value}
@@ -103,7 +129,9 @@ const katexInline = {
       {/* ligne pour mettrre le message d'erreur en couleur rouge*/}
        {error && <p style={{ color: "red" }}>{error}</p>}
         {/* ligne pour mettre une preview en dessous de l'editeur*/}
-      <MDEditor.Markdown source={value} style={{ whiteSpace: 'pre-wrap' }} /> 
+      {/*<MDEditor.Markdown source={value} style={{ whiteSpace: 'pre-wrap' }} /> */}
+      <button type="button" onClick={gestion_add_click}>Ajoute Flashcard</button>
+      <button type="button">Suite Flashcard</button>
     </div>
   );
 }
