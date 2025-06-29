@@ -18,7 +18,6 @@ export default function Account() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  console.log(user)
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login', { replace: true });
@@ -26,13 +25,6 @@ export default function Account() {
   }, [isAuthenticated, navigate]);
 
   if (!isAuthenticated) return null;
-
-  // TODO: remplacer les valeurs statiques par les données réelles de l'utilisateur.
-  // const user = {
-  //   name: 'Jean Dupont',
-  //   email: 'jean.dupont@example.com',
-  //   avatarUrl: 'https://i.pravatar.cc/300',
-  // };
 
   return (
     <Box
