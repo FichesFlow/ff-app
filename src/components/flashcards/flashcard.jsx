@@ -55,7 +55,9 @@ export default function OutlinedCard({ sujet, niveau, theme, description_recto, 
             </Typography>
           </CardContent>
           <CardActions sx={{ justifyContent: 'flex-start' }}>
+            {description_verso && (
             <Button size="small" onClick={handleFlip} sx={{margin: '-9px'}}>Voir le verso</Button>
+            )}
           </CardActions>
         </Card>
 
