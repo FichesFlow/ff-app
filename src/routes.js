@@ -4,6 +4,7 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Account from './pages/Account.jsx';
+import TestPlayground from './pages/TestPlayground.jsx';
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
   {
     path: "/account",
     Component: Account,
+  },
+  {
+    path: "/playground",
+    Component: TestPlayground,
   },
   {
     path: "*",

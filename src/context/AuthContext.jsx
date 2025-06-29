@@ -1,72 +1,87 @@
-import React, {createContext, useContext, useState} from 'react';
+import {createContext, useContext, useEffect, useReducer} from 'react';
+import * as api from '../api/auth.js';
 
 const AuthContext = createContext({
   user: null,
+  token: null,
   isAuthenticated: false,
   login: () => {
   },
   logout: () => {
   },
-  register: () => {
-  },
   loading: false,
   error: null,
 });
 
-export const AuthProvider = ({children}) => {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+const initialState = {
+  user: JSON.parse(localStorage.getItem('user')) ?? null,
+  token: localStorage.getItem('token') ?? null,
+  loading: false,
+  error: null,
+}
+
+function authReducer(state, action) {
+  console.log(action.type)
+  switch (action.type) {
+    case 'LOGIN_START':
+      return {...state, loading: true, error: null};
+    case 'LOGIN_SUCCESS':
+      console.log('Login successful:', action.user);
+      return {...state, loading: false, user: action.user, token: action.token};
+    case 'LOGIN_ERROR':
+      return {...state, loading: false, error: action.error};
+    case 'LOGOUT':
+      return {...initialState, user: null, token: null};
+    default:
+      return state;
+  }
+}
+
+export function AuthProvider({children}) {
+  const [state, dispatch] = useReducer(authReducer, initialState);
+
+  useEffect(() => {
+    if (state.token) {
+      localStorage.setItem('token', state.token);
+      localStorage.setItem('user', JSON.stringify(state.user));
+    }
+  }, [state.token, state.user]);
 
   const login = async (email, password) => {
-    setLoading(true);
-    setError(null);
+    dispatch({type: 'LOGIN_START'});
     try {
-      // Replace with real API call
-      setUser({email});
-    } catch (err) {
-      setError('Login failed');
-    } finally {
-      setLoading(false);
+      const {token, user} = await api.login(email, password);
+      dispatch({type: 'LOGIN_SUCCESS', user, token});
+    } catch {
+      dispatch({type: 'LOGIN_ERROR', error: 'Login failed'});
     }
-  };
+  }
 
   const logout = () => {
-    setUser(null);
-  };
-
-  const register = async (email, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Replace with real API call
-      setUser({email});
-    } catch (err) {
-      setError('Registration failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+    api.logout();
+    dispatch({type: 'LOGOUT'});
+  }
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        isAuthenticated: !!user,
+        ...state,
+        isAuthenticated: !!state.token,
         login,
         logout,
-        register,
-        loading,
-        error,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
-export default AuthContext;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+
+  return context;
+};
