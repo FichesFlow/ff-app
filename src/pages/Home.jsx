@@ -49,7 +49,6 @@ export default function Home() {
         </Button>
 
         <ColorModeToggle/>
-        <LoginButtonTest/>
       </Stack>
     </Box>
   );
