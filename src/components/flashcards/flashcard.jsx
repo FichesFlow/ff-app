@@ -5,6 +5,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import MDEditor from "@uiw/react-md-editor";
 
 export default function OutlinedCard({ sujet, niveau, theme, description_recto, description_verso }) {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -50,9 +51,14 @@ export default function OutlinedCard({ sujet, niveau, theme, description_recto, 
             <Typography variant="h5" component="div">
               {niveau} <Box component="span" sx={{ mx: '2px' }}>•</Box> {theme}
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, maxHeight: '185px', overflowY: 'scroll'}}>
-              {description_recto || 'Description non fournie.'}
-            </Typography>
+            <Box sx={{ mt: 1, maxHeight: '185px', overflowY: 'scroll'}}>
+              <MDEditor.Markdown source={description_recto || 'Description non fournie.'} 
+              style={{
+                backgroundColor: 'transparent',
+                color: '#000',
+                whiteSpace: 'pre-wrap' 
+                }}/>
+            </Box>
           </CardContent>
           <CardActions sx={{ justifyContent: 'flex-start' }}>
             {description_verso && (
@@ -84,9 +90,16 @@ export default function OutlinedCard({ sujet, niveau, theme, description_recto, 
             <Typography variant="h5" component="div">
               {niveau} <Box component="span" sx={{ mx: '2px' }}>•</Box> {theme}
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, maxHeight: '185px', overflowY: 'scroll'}}>
-              {description_verso || 'Description non fournie.'}
-            </Typography>
+            <Box sx={{ mt: 1, maxHeight: '185px', overflowY: 'scroll' }}>
+            <MDEditor.Markdown
+            source={description_verso || 'Description non fournie.'}
+            style={{
+            backgroundColor: 'transparent',
+            color: '#000',
+            whiteSpace: 'pre-wrap',
+            }}
+            />
+          </Box>
           </CardContent>
           <CardActions sx={{ justifyContent: 'flex-start' }}>
             <Button size="small" onClick={handleFlip} sx={{margin: '-9px'}}>Retourner</Button>
