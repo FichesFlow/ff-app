@@ -5,11 +5,18 @@ import Register from './pages/Register.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Account from './pages/Account.jsx';
 import TestPlayground from './pages/TestPlayground.jsx';
+import Root from "./components/layout/Root.jsx";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: Home,
+    Component: Root,
+    children: [
+      {index: true, Component: Home},
+      {path: "/account", Component: Account},
+      {path: "/playground", Component: TestPlayground},
+      {path: "*", Component: NotFound},
+    ]
   },
   {
     path: "/login",
@@ -18,17 +25,5 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     Component: Register,
-  },
-  {
-    path: "/account",
-    Component: Account,
-  },
-  {
-    path: "/playground",
-    Component: TestPlayground,
-  },
-  {
-    path: "*",
-    Component: NotFound,
-  },
+  }
 ]);

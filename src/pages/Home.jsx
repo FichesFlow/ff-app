@@ -3,7 +3,6 @@ import {Box, Button, Stack, Typography} from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import {Link} from 'react-router';
 import ColorModeToggle from "../components/ui/ColorModeToggle.jsx";
-import LoginButtonTest from "../components/auth/LoginButtonTest.jsx";
 
 export default function Home() {
   return (
@@ -12,7 +11,6 @@ export default function Home() {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      minHeight="100vh"
       textAlign="center"
       gap={4}
       px={2}
