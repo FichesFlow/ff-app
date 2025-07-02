@@ -22,12 +22,12 @@ export const appTheme = createTheme({
   },
   components: {
     // Exemple : arrondis XXL sur tous les Paper
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          borderRadius: '1.5rem',
-        },
-      },
-    },
+    // MuiPaper: {
+    //   styleOverrides: {
+    //     root: {
+    //       borderRadius: '1.5rem',
+    //     },
+    //   },
+    // },
   },
 });
