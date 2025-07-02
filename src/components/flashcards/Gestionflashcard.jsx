@@ -12,7 +12,7 @@ export default function FlashcardGestion() {
     // variable permettant de coupé à un retour à la ligne, pour éviter une coupure dans un mot
     let moitie_description = description.lastIndexOf("\n", midtext);
     // condition si on trouve pas la un retour a la ligne alors on coupe dans un espace
-    if (moitie_description === -1) moitie_description = description.lastIndexOf(" ", midpoint);
+    if (moitie_description === -1) moitie_description = description.lastIndexOf(" ", midtext);
     // condition si il n'y a ni retour a la ligne ou d'espace
     if (moitie_description === -1) moitie_description = midtext;
 

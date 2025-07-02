@@ -8,15 +8,10 @@ RUN yarn install
 COPY . .
 RUN yarn run build
 
-FROM node:20-alpine
+FROM nginx:alpine
 
-WORKDIR /app
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY package.json yarn.lock ./
-RUN yarn install --production
+EXPOSE 80
 
-COPY --from=builder /app/build ./build
-
-EXPOSE 3000
-
-CMD ["node", "build"]
+CMD ["nginx", "-g", "daemon off;"]

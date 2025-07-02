@@ -15,11 +15,11 @@ App will be available at `http://localhost:5173`
 ### ️Production
 
 ```bash
-# 1. Build the app
+# 1. Build the app, The static files will be in the `dist` directory
 yarn build
 
-# 2. Start the server
-node build/index.js
+# 2. Start the server with the built files using your preferred server
+yarn preview
 ```
 
 App will be available at `http://127.0.0.1:3000`
