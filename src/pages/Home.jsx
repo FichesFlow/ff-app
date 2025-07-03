@@ -1,9 +1,16 @@
-import {Box,} from '@mui/material';
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
 import HeroSection from "../components/home/HeroSection.jsx";
 import AccountPrompt from "../components/home/AccountPrompt.jsx";
 import FichesPreviewGallery from "../components/home/FichesPreviewGallery.jsx";
+import ProgressSection from "../components/home/ProgressSection.jsx";
+import ContributionsSection from "../components/home/ContributionsSection.jsx";
+import {useAuth} from "../context/AuthContext.jsx";
+import StatsLeaderboard from "../components/home/StatsLeaderboard.jsx";
 
 export default function Home() {
+  const {isAuthenticated} = useAuth();
+
   return (
     <Box
       display="flex"
@@ -16,11 +23,19 @@ export default function Home() {
       px={2}
       py={6}
     >
-      <HeroSection/>
+      {isAuthenticated ? (
+        <Stack width="100%" spacing={3} alignItems="center">
+          <StatsLeaderboard/>
+          <ProgressSection/>
+          <ContributionsSection/>
+        </Stack>
+      ) : (
+        <HeroSection/>
+      )}
 
       <FichesPreviewGallery/>
 
-      <AccountPrompt/>
+      {!isAuthenticated && (<AccountPrompt/>)}
     </Box>
   );
 }
