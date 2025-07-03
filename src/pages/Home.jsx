@@ -1,4 +1,3 @@
-import React from 'react';
 import {Box,} from '@mui/material';
 import HeroSection from "../components/home/HeroSection.jsx";
 import AccountPrompt from "../components/home/AccountPrompt.jsx";

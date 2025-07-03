@@ -1,4 +1,3 @@
-import React from 'react';
 import {Container, Divider, Paper, Stack, Typography,} from '@mui/material';
 import LoginButtonTest from "../components/auth/LoginButtonTest.jsx";
 import LogoutButtonTest from "../components/auth/LogoutButtonTest.jsx";
