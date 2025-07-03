@@ -3,7 +3,7 @@ import {Link} from 'react-router';
 
 export default function Footer() {
   return (
-    <Box component="footer" sx={{bgcolor: 'background.paper', py: 4, mt: 'auto'}}>
+    <Box component="footer" sx={{py: 4, mt: 'auto'}}>
       <Container maxWidth="lg">
         <Stack
           direction={{xs: 'column', sm: 'row'}}
