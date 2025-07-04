@@ -3,7 +3,7 @@ import MDEditor from '@uiw/react-md-editor';
 import katex from 'katex';
 import 'katex/dist/katex.css';
 import { commands } from '@uiw/react-md-editor';
-
+import { Box, Paper, TextField, Typography, Divider, Button as MUIButton } from '@mui/material';
 
 export default function FicheEditor({onAddFlashcard}) {
   const [value, setValue] = React.useState("");
@@ -66,18 +66,50 @@ const katexInline = {
       setValue(value)
     }
   }
-  return (
-    <div className="container">
+
+
+return (
+  <Box className="container" sx={{ p: 4, maxWidth: 900, mx: 'auto' }}>
+    <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
       <label>
-        Discipline Niveau: <input name="discipline_niveau input" value={niveau} onChange={e => setNiveau(e.target.value)} />
-        <hr/>
+        <Typography variant="h6" gutterBottom>Discipline Niveau:</Typography>
+        <TextField
+          fullWidth
+          variant="outlined"
+          name="discipline_niveau input"
+          value={niveau}
+          onChange={e => setNiveau(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <hr />
         <br />
-        Matière: <input name="Sujet_input" value={sujet} onChange={e => setSujet(e.target.value)} />
-        <hr/>
+
+        <Typography variant="h6" gutterBottom>Matière:</Typography>
+        <TextField
+          fullWidth
+          variant="outlined"
+          name="Sujet_input"
+          value={sujet}
+          onChange={e => setSujet(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <hr />
         <br />
-        Thème : <input value={theme} onChange={e => setTheme(e.target.value)} />
-  <hr/><br />
+
+        <Typography variant="h6" gutterBottom>Thème :</Typography>
+        <TextField
+          fullWidth
+          variant="outlined"
+          value={theme}
+          onChange={e => setTheme(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <hr />
+        <br />
       </label>
+    </Paper>
+
+    <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
       <MDEditor
         value={value}
         onChange={ErreurcaractereMax}
@@ -93,7 +125,7 @@ const katexInline = {
           components: {
             code: ({ children = [], className, ...props }) => {
               const rawCode = Array.isArray(children) ? children[0] : children;
-            
+
               // Cas 1 : formule inline avec $$...$$
               if (typeof rawCode === 'string' && /^\$\$(.*)\$\$/.test(rawCode)) {
                 const math = rawCode.replace(/^\$\$(.*)\$\$/, '$1');
@@ -119,20 +151,30 @@ const katexInline = {
                   />
                 );
               }
-            
+
               // Cas par défaut
               return <code className={String(className)}>{rawCode}</code>;
             }
           },
         }}
       />
-      {/* ligne pour mettrre le message d'erreur en couleur rouge*/}
-       {error && <p style={{ color: "red" }}>{error}</p>}
-        {/* ligne pour mettre une preview en dessous de l'editeur*/}
-      {/*<MDEditor.Markdown source={value} style={{ whiteSpace: 'pre-wrap' }} /> */}
-      <button type="button" onClick={gestion_add_click}>Ajoute Flashcard</button>
-      <button type="button">Suite Flashcard</button>
-    </div>
-  );
-}
+    </Paper>
 
+    {/* ligne pour mettrre le message d'erreur en couleur rouge*/}
+    {error && (
+      <Typography sx={{ color: 'red', mb: 2 }}>{error}</Typography>
+    )}
+    {/* ligne pour mettre une preview en dessous de l'editeur*/}
+    {/*<MDEditor.Markdown source={value} style={{ whiteSpace: 'pre-wrap' }} /> */}
+
+    <Box sx={{ display: 'flex', gap: 2 }}>
+      <MUIButton variant="contained" color="primary" type="button" onClick={gestion_add_click}>
+        Ajoute Flashcard
+      </MUIButton>
+      <MUIButton variant="outlined" color="secondary" type="button">
+        Suite Flashcard
+      </MUIButton>
+    </Box>
+  </Box>
+);
+}
