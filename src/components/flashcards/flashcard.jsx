@@ -55,7 +55,7 @@ export default function OutlinedCard({ sujet, niveau, theme, description_recto, 
               <MDEditor.Markdown source={description_recto || 'Description non fournie.'} 
               style={{
                 backgroundColor: 'transparent',
-                color: '#000',
+                color: 'white',
                 whiteSpace: 'pre-wrap' 
                 }}/>
             </Box>
@@ -95,7 +95,7 @@ export default function OutlinedCard({ sujet, niveau, theme, description_recto, 
             source={description_verso || 'Description non fournie.'}
             style={{
             backgroundColor: 'transparent',
-            color: '#000',
+            color: 'white',
             whiteSpace: 'pre-wrap',
             }}
             />
