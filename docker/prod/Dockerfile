@@ -6,10 +6,11 @@ COPY package.json yarn.lock ./
 RUN yarn install
 
 COPY . .
-RUN yarn run build
+RUN yarn build
 
 FROM nginx:alpine
 
+COPY ./docker/prod/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80

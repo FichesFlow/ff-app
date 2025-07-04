@@ -1,10 +1,16 @@
-import React from 'react';
-import {Box, Button, Stack, Typography} from '@mui/material';
-import SchoolIcon from '@mui/icons-material/School';
-import {Link} from 'react-router';
-import ColorModeToggle from "../components/ui/ColorModeToggle.jsx";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import HeroSection from "../components/home/HeroSection.jsx";
+import AccountPrompt from "../components/home/AccountPrompt.jsx";
+import FichesPreviewGallery from "../components/home/FichesPreviewGallery.jsx";
+import ProgressSection from "../components/home/ProgressSection.jsx";
+import ContributionsSection from "../components/home/ContributionsSection.jsx";
+import {useAuth} from "../context/AuthContext.jsx";
+import StatsLeaderboard from "../components/home/StatsLeaderboard.jsx";
 
 export default function Home() {
+  const {isAuthenticated} = useAuth();
+
   return (
     <Box
       display="flex"
@@ -12,42 +18,24 @@ export default function Home() {
       alignItems="center"
       justifyContent="center"
       textAlign="center"
+      width="1600px"
       gap={4}
       px={2}
+      py={6}
     >
-      <SchoolIcon sx={{fontSize: 96}} color="primary"/>
+      {isAuthenticated ? (
+        <Stack width="100%" spacing={3} alignItems="center">
+          <StatsLeaderboard/>
+          <ProgressSection/>
+          <ContributionsSection/>
+        </Stack>
+      ) : (
+        <HeroSection/>
+      )}
 
-      <Typography variant="h3" component="h1" gutterBottom>
-        Bienvenue sur FichesFlow
-      </Typography>
+      <FichesPreviewGallery/>
 
-      <Typography variant="h6" color="text.secondary" maxWidth={600}>
-        Créez, partagez et révisez vos fiches de cours avec une touche de
-        gamification. Boostez votre mémorisation grâce à la répétition espacée !
-      </Typography>
-
-      <Stack direction={{xs: 'column', sm: 'row'}} spacing={2} mt={4}>
-        <Button
-          component={Link}
-          to="/flashcards"
-          variant="contained"
-          size="large"
-          color="primary"
-        >
-          Commencer une révision
-        </Button>
-
-        <Button
-          component={Link}
-          to="/notes"
-          variant="outlined"
-          size="large"
-        >
-          Parcourir les fiches
-        </Button>
-
-        <ColorModeToggle/>
-      </Stack>
+      {!isAuthenticated && (<AccountPrompt/>)}
     </Box>
   );
 }

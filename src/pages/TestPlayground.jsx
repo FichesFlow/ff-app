@@ -1,7 +1,7 @@
-import React from 'react';
 import {Container, Divider, Paper, Stack, Typography,} from '@mui/material';
 import LoginButtonTest from "../components/auth/LoginButtonTest.jsx";
 import LogoutButtonTest from "../components/auth/LogoutButtonTest.jsx";
+import ColorModeToggle from "../components/ui/ColorModeToggle.jsx";
 
 export default function TestPlayground() {
   return (
@@ -32,6 +32,7 @@ function PlayArea() {
     <Stack spacing={2}>
       <LoginButtonTest/>
       <LogoutButtonTest/>
+      <ColorModeToggle />
     </Stack>
   );
 }

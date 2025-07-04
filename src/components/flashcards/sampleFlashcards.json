@@ -1,0 +1,142 @@
+[
+  {
+    "sujet": "Mathématiques",
+    "niveau": "Terminale",
+    "theme": "Analyse",
+    "description_recto": "Qu'est-ce qu'une fonction dérivable ?",
+    "description_verso": "Une fonction est dérivable en un point si la limite du taux de variation existe en ce point."
+  },
+  {
+    "sujet": "Physique",
+    "niveau": "Première",
+    "theme": "Mécanique",
+    "description_recto": "Qu'est-ce que la loi de Newton ?",
+    "description_verso": "La loi de Newton stipule que la force est égale à la masse multipliée par l'accélération (F = m × a)."
+  },
+  {
+    "sujet": "Histoire",
+    "niveau": "Seconde",
+    "theme": "Révolution française",
+    "description_recto": "Quels sont les principaux événements de la Révolution française ?",
+    "description_verso": "Les États généraux, la prise de la Bastille, la Déclaration des droits de l'homme et du citoyen."
+  },
+  {
+    "sujet": "Biologie",
+    "niveau": "Terminale",
+    "theme": "Génétique",
+    "description_recto": "Qu'est-ce qu'un allèle ?",
+    "description_verso": "Un allèle est une version alternative d'un même gène située au même locus sur un chromosome."
+  },
+  {
+    "sujet": "Chimie",
+    "niveau": "Première",
+    "theme": "Réactions chimiques",
+    "description_recto": "Qu'est-ce qu'une réaction exothermique ?",
+    "description_verso": "Une réaction exothermique dégage de l'énergie sous forme de chaleur."
+  },
+  {
+    "sujet": "Français",
+    "niveau": "Terminale",
+    "theme": "Poésie",
+    "description_recto": "Qu'est-ce qu'un alexandrin ?",
+    "description_verso": "L'alexandrin est un vers de douze syllabes, souvent découpé en deux hémistiches de six."
+  },
+  {
+    "sujet": "Anglais",
+    "niveau": "Seconde",
+    "theme": "Grammaire",
+    "description_recto": "Quand utilise-t-on le present perfect ?",
+    "description_verso": "On l'utilise pour des actions passées ayant un lien avec le présent."
+  },
+  {
+    "sujet": "SVT",
+    "niveau": "Première",
+    "theme": "Écologie",
+    "description_recto": "Qu'est-ce qu'un biome ?",
+    "description_verso": "Un biome est une grande zone écologique caractérisée par son climat et sa végétation."
+  },
+  {
+    "sujet": "Géographie",
+    "niveau": "Terminale",
+    "theme": "Mondialisation",
+    "description_recto": "Qu'est-ce que la mondialisation ?",
+    "description_verso": "Processus d'interconnexion croissante des territoires et des économies à l'échelle mondiale."
+  },
+  {
+    "sujet": "Philosophie",
+    "niveau": "Terminale",
+    "theme": "Connaissance",
+    "description_recto": "Qu'est-ce que le scepticisme ?",
+    "description_verso": "Le scepticisme est la doctrine qui met en doute la possibilité d'accéder à une vérité certaine."
+  },
+  {
+    "sujet": "Informatique",
+    "niveau": "Terminale",
+    "theme": "Algorithmique",
+    "description_recto": "Qu'est-ce qu'un algorithme de tri ?",
+    "description_verso": "Un algorithme de tri ordonne les éléments d'une liste selon un critère donné."
+  },
+  {
+    "sujet": "Économie",
+    "niveau": "Terminale",
+    "theme": "Marché",
+    "description_recto": "Qu'est-ce que l'offre et la demande ?",
+    "description_verso": "L'offre est la quantité de biens proposés ; la demande est la quantité souhaitée par les acheteurs."
+  },
+  {
+    "sujet": "Littérature",
+    "niveau": "Première",
+    "theme": "Roman",
+    "description_recto": "Qu'est-ce qu'un narrateur omniscient ?",
+    "description_verso": "Un narrateur qui connaît tous les pensées et événements, y compris ceux des personnages."
+  },
+  {
+    "sujet": "Langues vivantes",
+    "niveau": "Seconde",
+    "theme": "Vocabulaire",
+    "description_recto": "Que signifie le mot « serendipity » en anglais ?",
+    "description_verso": "La découverte heureuse et inattendue d’une chose agréable."
+  },
+  {
+    "sujet": "Arts plastiques",
+    "niveau": "Terminale",
+    "theme": "Couleurs",
+    "description_recto": "Qu'est-ce qu'une couleur complémentaire ?",
+    "description_verso": "Deux couleurs qui, placées côte à côte, créent un contraste maximal."
+  },
+  {
+    "sujet": "Sport",
+    "niveau": "Première",
+    "theme": "Physiologie",
+    "description_recto": "Qu'est-ce que l'endorphine ?",
+    "description_verso": "Molécule libérée lors de l'effort, responsable de la sensation de bien-être."
+  },
+  {
+    "sujet": "Musique",
+    "niveau": "Seconde",
+    "theme": "Théorie",
+    "description_recto": "Qu'est-ce qu'une gamme majeure ?",
+    "description_verso": "Suite de notes suivant le schéma ton-ton-demi-ton-ton-ton-ton-demi-ton."
+  },
+  {
+    "sujet": "Technologie",
+    "niveau": "Terminale",
+    "theme": "Automatisation",
+    "description_recto": "Qu'est-ce qu'un automate programmable ?",
+    "description_verso": "Un système numérique qui contrôle des machines industrielles selon un programme."
+  },
+  {
+    "sujet": "Santé",
+    "niveau": "Première",
+    "theme": "Nutrition",
+    "description_recto": "Qu'est-ce que l'indice glycémique ?",
+    "description_verso": "Mesure de la vitesse d'élévation de la glycémie après ingestion d'un aliment."
+  },
+  {
+    "sujet": "Psychologie",
+    "niveau": "Terminale",
+    "theme": "Cognition",
+    "description_recto": "Qu'est-ce que la mémoire procédurale ?",
+    "description_verso": "Mémoire des gestes et des compétences, comme faire du vélo."
+  }
+]
