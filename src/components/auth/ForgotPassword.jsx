@@ -1,4 +1,3 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -8,7 +7,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import OutlinedInput from '@mui/material/OutlinedInput';
 
-function ForgotPassword({ open, handleClose }) {
+function ForgotPassword({open, handleClose}) {
   return (
     <Dialog
       open={open}
@@ -20,17 +19,16 @@ function ForgotPassword({ open, handleClose }) {
             event.preventDefault();
             handleClose();
           },
-          sx: { backgroundImage: 'none' },
+          sx: {backgroundImage: 'none'},
         },
       }}
     >
-      <DialogTitle>Reset password</DialogTitle>
+      <DialogTitle>Réinitialisation Mot de Passe</DialogTitle>
       <DialogContent
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}
+        sx={{display: 'flex', flexDirection: 'column', gap: 2, width: '100%'}}
       >
         <DialogContentText>
-          Enter your account&apos;s email address, and we&apos;ll send you a link to
-          reset your password.
+          Entrez l'adresse e-mail de votre compte, et nous vous enverrons un lien pour réinitialiser votre mot de passe.
         </DialogContentText>
         <OutlinedInput
           autoFocus
@@ -38,16 +36,15 @@ function ForgotPassword({ open, handleClose }) {
           margin="dense"
           id="email"
           name="email"
-          label="Email address"
-          placeholder="Email address"
+          placeholder="Addresse email"
           type="email"
           fullWidth
         />
       </DialogContent>
-      <DialogActions sx={{ pb: 3, px: 3 }}>
-        <Button onClick={handleClose}>Cancel</Button>
+      <DialogActions sx={{pb: 3, px: 3}}>
+        <Button onClick={handleClose}>Annuler</Button>
         <Button variant="contained" type="submit">
-          Continue
+          Continuer
         </Button>
       </DialogActions>
     </Dialog>
