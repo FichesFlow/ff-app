@@ -1,7 +1,7 @@
-import SignIn from '../components/templates/sign-in/SignIn.jsx';
+import SignInCard from "../components/auth/SignInCard.jsx";
 
 function Login() {
-  return (<SignIn/>);
+  return (<SignInCard/>);
 }
 
 export default Login;

@@ -1,7 +1,7 @@
-import SignUp from '../components/templates/sign-up/SignUp.jsx';
+import SignUpCard from "../components/auth/SignUpCard.jsx";
 
 function Register() {
-  return (<SignUp/>);
+  return (<SignUpCard/>)
 }
 
 export default Register;
