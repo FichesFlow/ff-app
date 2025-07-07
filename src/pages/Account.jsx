@@ -12,8 +12,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import SecurityIcon from '@mui/icons-material/Security';
 import {Link, useNavigate} from 'react-router';
 import {useAuth} from "../context/AuthContext.jsx";
+import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 
 export default function Account() {
+  useDocumentTitle("Comptes utilisateur – FichesFlow");
 
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
