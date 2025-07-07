@@ -55,7 +55,7 @@ function App() {
         </p>
       </div>
 
-      {/* 👇 Ton composant de test */}
+      {/* de test groupflashcard */}
       <div style={{ padding: '2rem' }}>
         <h2>Test GroupedFlashcards</h2>
         <GroupdFlashcards cards={demoCards} />
