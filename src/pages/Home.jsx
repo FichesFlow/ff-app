@@ -7,8 +7,11 @@ import ProgressSection from "../components/home/ProgressSection.jsx";
 import ContributionsSection from "../components/home/ContributionsSection.jsx";
 import {useAuth} from "../context/AuthContext.jsx";
 import StatsLeaderboard from "../components/home/StatsLeaderboard.jsx";
+import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 
 export default function Home() {
+  useDocumentTitle("FichesFlow – La plateforme de fiches de révision collaborative");
+
   const {isAuthenticated} = useAuth();
 
   return (

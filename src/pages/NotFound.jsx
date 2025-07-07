@@ -1,8 +1,11 @@
 import { Box, Typography, Button, Stack } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { Link } from 'react-router';
+import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 
 export default function NotFound() {
+  useDocumentTitle("Page non trouvée – FichesFlow");
+
   return (
     <Box
       display="flex"
