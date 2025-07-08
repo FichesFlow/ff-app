@@ -7,6 +7,8 @@ const AuthContext = createContext({
   isAuthenticated: false,
   login: () => {
   },
+  register: () => {
+  },
   logout: () => {
   },
   loading: false,
@@ -21,14 +23,17 @@ const initialState = {
 }
 
 function authReducer(state, action) {
-  console.log(action.type)
   switch (action.type) {
     case 'LOGIN_START':
+    case 'REGISTER_START':
       return {...state, loading: true, error: null};
     case 'LOGIN_SUCCESS':
       console.log('Login successful:', action.user);
       return {...state, loading: false, user: action.user, token: action.token};
+    case 'REGISTER_SUCCESS':
+      return {...state, loading: false, user: action.user, token: action.token, message: action.message};
     case 'LOGIN_ERROR':
+    case 'REGISTER_ERROR':
       return {...state, loading: false, error: action.error};
     case 'LOGOUT':
       return {...initialState, user: null, token: null};
@@ -50,10 +55,13 @@ export function AuthProvider({children}) {
   const login = async (email, password) => {
     dispatch({type: 'LOGIN_START'});
     try {
-      const {token, user} = await api.login(email, password);
+      const {token} = await api.login(email, password);
+      const user = {"name": "Jean Dupont", "email": email, "avatarUrl": "https://i.pravatar.cc/300"}
       dispatch({type: 'LOGIN_SUCCESS', user, token});
-    } catch {
+      return true;
+    } catch (error) {
       dispatch({type: 'LOGIN_ERROR', error: 'Login failed'});
+      throw error;
     }
   }
 
@@ -62,12 +70,30 @@ export function AuthProvider({children}) {
     dispatch({type: 'LOGOUT'});
   }
 
+  const register = async (email, password, username) => {
+    dispatch({type: 'REGISTER_START'});
+    try {
+      await api.register(email, password, username);
+      dispatch({
+        type: 'REGISTER_SUCCESS',
+        user: null,
+        token: null,
+        message: 'Registration successful. Please log in.'
+      });
+      return true;
+    } catch (error) {
+      dispatch({type: 'REGISTER_ERROR', error: 'Registration failed'});
+      return false;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         ...state,
         isAuthenticated: !!state.token,
         login,
+        register,
         logout,
       }}
     >

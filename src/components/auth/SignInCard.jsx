@@ -9,10 +9,13 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Link from '@mui/material/Link';
-import {Link as RouterLink} from 'react-router';
+import {Link as RouterLink, useNavigate} from 'react-router';
 import {AuthContainer} from "../shared/AuthContainer.jsx";
 import {AuthCard} from "../shared/AuthCard.jsx";
 import ForgotPassword from "./ForgotPassword.jsx";
+import {toast, ToastContainer} from 'react-toastify';
+import {useAuth} from "../../context/AuthContext.jsx";
+import useTheme from '../../hooks/useTheme';
 
 export default function SignInCard() {
   const [emailError, setEmailError] = useState(false);
@@ -20,6 +23,10 @@ export default function SignInCard() {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [open, setOpen] = useState(false);
+
+  const {login, loading} = useAuth();
+  const currentTheme = useTheme();
+  const navigate = useNavigate();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -57,17 +64,25 @@ export default function SignInCard() {
   };
 
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (emailError || passwordError) {
-      event.preventDefault();
       return;
     }
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    try {
+      await login(data.get('email'), data.get('password'));
+      toast.success('Connexion réussie!', {
+        position: "bottom-right",
+        theme: currentTheme === 'dark' ? 'dark' : 'light'
+      });
+      navigate("/");
+    } catch {
+      toast.error('Échec de la connexion. Vérifiez vos identifiants.', {
+        position: "bottom-right",
+        theme: currentTheme === 'dark' ? 'dark' : 'light'
+      });
+    }
   };
 
   return (
@@ -129,7 +144,7 @@ export default function SignInCard() {
             variant="contained"
             onClick={validateInputs}
           >
-            Se connecter
+            {loading ? 'Connexion...' : 'Se connecter'}
           </Button>
           <ForgotPassword open={open} handleClose={handleClose}/>
           <Link
@@ -159,6 +174,7 @@ export default function SignInCard() {
           </Typography>
         </Box>
       </AuthCard>
+      <ToastContainer/>
     </AuthContainer>
   );
 }
