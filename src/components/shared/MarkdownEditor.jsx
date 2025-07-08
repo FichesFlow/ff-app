@@ -76,6 +76,6 @@ const plugins = [
   })
 ]
 
-export default function MarkdownEditor() {
-  return <MDXEditor markdown="# Hello world" plugins={plugins}/>
+export default function MarkdownEditor({ref}) {
+  return <MDXEditor ref={ref} markdown="# Hello world" plugins={plugins}/>
 }

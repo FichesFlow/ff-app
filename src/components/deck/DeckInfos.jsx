@@ -10,6 +10,10 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 
 export default function DeckInfos(
   {
+    titre,
+    setTitre,
+    description,
+    setDescription,
     language,
     setLanguage,
     visibility,
@@ -25,7 +29,15 @@ export default function DeckInfos(
       </Typography>
       <Stack spacing={2}>
         {/* Titre */}
-        <TextField label="Titre" name="title" required fullWidth placeholder="Ex. Analyse – Suites"/>
+        <TextField
+          label="Titre"
+          name="title"
+          required
+          fullWidth
+          placeholder="Ex. Analyse – Suites"
+          value={titre}
+          onChange={e => setTitre(e.target.value)}
+        />
 
         {/* Description */}
         <TextField
@@ -35,6 +47,8 @@ export default function DeckInfos(
           multiline
           rows={3}
           placeholder="Court résumé pour la galerie…"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
         />
 
         {/* Langue, Visibilité, Statut */}
