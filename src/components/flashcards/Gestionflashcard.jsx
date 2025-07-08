@@ -72,6 +72,7 @@ export default function FlashcardGestion() {
         console.error("L'envoi n'a pas marché :", await reponse.text());
       }
     }
+    setFlashcards([]);
     setAlertOpen(true);
     } 
     catch (error) {
