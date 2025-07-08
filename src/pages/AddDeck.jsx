@@ -104,7 +104,7 @@ export default function AddDeck() {
         <Button variant="contained" onClick={handleSaveCard}>
           {editingId ? 'Mettre à jour la fiche' : 'Ajouter une fiche'}
         </Button>
-        <Button variant="contained" onClick={handleSubmitDeck}>
+        <Button variant="contained" onClick={handleSubmitDeck} color="secondary">
           Créer le deck
         </Button>
       </Stack>

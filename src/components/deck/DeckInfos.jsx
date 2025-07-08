@@ -23,7 +23,7 @@ export default function DeckInfos(
   }
 ) {
   return (
-    <Box bgcolor="#fff" p={3} borderRadius={1} boxShadow={3} mb={4}>
+    <Box border="1px solid #fff" p={3} borderRadius={1} boxShadow={3} mb={4}>
       <Typography variant="h5" gutterBottom>
         Informations sur le deck
       </Typography>
