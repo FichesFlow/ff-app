@@ -12,6 +12,7 @@ import Link from '@mui/material/Link';
 import {Link as RouterLink} from 'react-router';
 import {AuthContainer} from "../shared/AuthContainer.jsx";
 import {AuthCard} from "../shared/AuthCard.jsx";
+import {useAuth} from "../../context/AuthContext.jsx";
 
 export default function SignUpCard() {
   const [emailError, setEmailError] = useState(false);
@@ -20,6 +21,8 @@ export default function SignUpCard() {
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
+
+  const {register, loading} = useAuth();
 
   const validateInputs = () => {
     const email = document.getElementById('email');
@@ -60,16 +63,12 @@ export default function SignUpCard() {
 
 
   const handleSubmit = (event) => {
+    event.preventDefault();
     if (usernameError || emailError || passwordError) {
-      event.preventDefault();
       return;
     }
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    register(data.get('email'), data.get('password'), data.get('username'));
   };
 
   return (
@@ -156,7 +155,7 @@ export default function SignUpCard() {
             variant="contained"
             onClick={validateInputs}
           >
-            Inscrivez-vous
+            {loading ? 'Création du compte...' : 'Créer un compte'}
           </Button>
         </Box>
         <Divider>

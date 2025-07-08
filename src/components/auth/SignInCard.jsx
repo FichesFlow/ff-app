@@ -13,6 +13,7 @@ import {Link as RouterLink} from 'react-router';
 import {AuthContainer} from "../shared/AuthContainer.jsx";
 import {AuthCard} from "../shared/AuthCard.jsx";
 import ForgotPassword from "./ForgotPassword.jsx";
+import {useAuth} from "../../context/AuthContext.jsx";
 
 export default function SignInCard() {
   const [emailError, setEmailError] = useState(false);
@@ -20,6 +21,8 @@ export default function SignInCard() {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [open, setOpen] = useState(false);
+
+  const {login, loading} = useAuth();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -58,16 +61,12 @@ export default function SignInCard() {
 
 
   const handleSubmit = (event) => {
+    event.preventDefault();
     if (emailError || passwordError) {
-      event.preventDefault();
       return;
     }
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    login(data.get('email'), data.get('password'))
   };
 
   return (
@@ -129,7 +128,7 @@ export default function SignInCard() {
             variant="contained"
             onClick={validateInputs}
           >
-            Se connecter
+            {loading ? 'Connexion...' : 'Se connecter'}
           </Button>
           <ForgotPassword open={open} handleClose={handleClose}/>
           <Link
