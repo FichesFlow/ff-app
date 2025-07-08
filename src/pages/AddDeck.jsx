@@ -8,6 +8,10 @@ import {useDocumentTitle} from '../hooks/useDocumentTitle.js'
 import MarkdownEditor from '../components/shared/MarkdownEditor.jsx'
 import DeckInfos from '../components/deck/DeckInfos.jsx'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
+import {toast, ToastContainer} from 'react-toastify';
+import {createDeck} from "../api/deck.js";
+import {useNavigate} from 'react-router';
+import useTheme from "../hooks/useTheme.js";
 
 export default function AddDeck() {
   useDocumentTitle('Ajouter un deck – FichesFlow')
@@ -22,6 +26,9 @@ export default function AddDeck() {
   const [cards, setCards] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const currentTheme = useTheme();
+  const navigate = useNavigate();
 
   /* create or update card */
   const handleSaveCard = () => {
@@ -60,19 +67,43 @@ export default function AddDeck() {
       alert('Titre et au moins une fiche sont requis')
       return
     }
+
     setIsSubmitting(true)
+
     const payload = {
-      title: titre, description, language, visibility, status, cards: cards.map(({content}) => ({front: content}))
+      title: titre,
+      description,
+      language: language.toUpperCase(),
+      visibility,
+      status,
+      cards: cards.map((c, index) => ({
+        position: index,
+        cardSides: [
+          {
+            side: 'front',
+            cardBlock: {
+              content: c.content
+            }
+          }
+        ]
+      }))
     }
+
     try {
-      const res = await fetch('/api/decks', {
-        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
-      })
-      console.log('Mock response', res.status)
-      console.log('Mock data', JSON.stringify(payload))
-      alert('Deck envoyé (mock) !')
-      // reset optionnel
-      // setTitre(''); setDescription(''); setCards([])
+      const res = await createDeck(JSON.stringify(payload))
+
+      if (res && res.id) {
+        toast.success('Deck créé avec succès !', {
+          position: "bottom-right",
+          theme: currentTheme === 'dark' ? 'dark' : 'light'
+        });
+        navigate('/')
+      } else {
+        toast.error('Erreur lors de la création du deck', {
+          position: "bottom-right",
+          theme: currentTheme === 'dark' ? 'dark' : 'light'
+        });
+      }
     } catch (e) {
       console.error(e)
       alert('Erreur réseau (mock)')
@@ -80,6 +111,7 @@ export default function AddDeck() {
       setIsSubmitting(false)
     }
   }
+
 
   return (
     <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
@@ -132,6 +164,7 @@ export default function AddDeck() {
             </Box>
           </Grid>))}
       </Grid>
+      <ToastContainer/>
     </Container>
   )
 }
