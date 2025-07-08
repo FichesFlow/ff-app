@@ -27,11 +27,9 @@ export default function AddDeck() {
     if (!md || md.trim() === '') return
 
     if (editingId) {
-      // update existing
       setCards((prev) => prev.map((c) => (c.id === editingId ? {...c, content: md} : c)))
       setEditingId(null)
     } else {
-      // create new
       setCards((prev) => [...prev, {id: crypto.randomUUID(), content: md}])
     }
     markdownRef.current.setMarkdown('')
@@ -43,6 +41,15 @@ export default function AddDeck() {
     if (!card) return
     markdownRef.current?.setMarkdown(card.content)
     setEditingId(id)
+  }
+
+  /* delete */
+  const handleDeleteCard = (id) => {
+    setCards((prev) => prev.filter((c) => c.id !== id))
+    if (editingId === id) {
+      markdownRef.current?.setMarkdown('')
+      setEditingId(null)
+    }
   }
 
   return (
@@ -76,9 +83,17 @@ export default function AddDeck() {
               description_recto={card.content}
               description_verso="Description du verso de la fiche (optionnel)"
             />
-            <Box mt={1} textAlign="center">
+            <Box mt={1} display="flex" gap={1} justifyContent="center">
               <Button size="small" variant="outlined" onClick={() => handleEditCard(card.id)}>
                 Modifier
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                color="error"
+                onClick={() => handleDeleteCard(card.id)}
+              >
+                Supprimer
               </Button>
             </Box>
           </Grid>
