@@ -58,8 +58,10 @@ export function AuthProvider({children}) {
       const {token} = await api.login(email, password);
       const user = {"name": "Jean Dupont", "email": email, "avatarUrl": "https://i.pravatar.cc/300"}
       dispatch({type: 'LOGIN_SUCCESS', user, token});
-    } catch {
+      return true;
+    } catch (error) {
       dispatch({type: 'LOGIN_ERROR', error: 'Login failed'});
+      throw error;
     }
   }
 

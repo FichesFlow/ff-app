@@ -9,10 +9,12 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Link from '@mui/material/Link';
-import {Link as RouterLink} from 'react-router';
+import {Link as RouterLink, useNavigate} from 'react-router';
 import {AuthContainer} from "../shared/AuthContainer.jsx";
 import {AuthCard} from "../shared/AuthCard.jsx";
+import {toast, ToastContainer} from 'react-toastify';
 import {useAuth} from "../../context/AuthContext.jsx";
+import useTheme from '../../hooks/useTheme';
 
 export default function SignUpCard() {
   const [emailError, setEmailError] = useState(false);
@@ -23,6 +25,8 @@ export default function SignUpCard() {
   const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
 
   const {register, loading} = useAuth();
+  const currentTheme = useTheme();
+  const navigate = useNavigate();
 
   const validateInputs = () => {
     const email = document.getElementById('email');
@@ -62,13 +66,25 @@ export default function SignUpCard() {
   };
 
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (usernameError || emailError || passwordError) {
       return;
     }
     const data = new FormData(event.currentTarget);
-    register(data.get('email'), data.get('password'), data.get('username'));
+    try {
+      await register(data.get('email'), data.get('password'), data.get('username'));
+      toast.success('Compte créé avec succès!', {
+        position: "bottom-right",
+        theme: currentTheme === 'dark' ? 'dark' : 'light'
+      });
+      navigate("/login");
+    } catch {
+      toast.error('Échec de la création du compte. Veuillez réessayer.', {
+        position: "bottom-right",
+        theme: currentTheme === 'dark' ? 'dark' : 'light'
+      });
+    }
   };
 
   return (
@@ -175,6 +191,7 @@ export default function SignUpCard() {
           </Typography>
         </Box>
       </AuthCard>
+      <ToastContainer/>
     </AuthContainer>
   );
 }
