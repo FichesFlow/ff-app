@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid'
 import {useDocumentTitle} from '../hooks/useDocumentTitle.js'
 import MarkdownEditor from '../components/shared/MarkdownEditor.jsx'
 import DeckInfos from '../components/deck/DeckInfos.jsx'
-import OutlinedCard from "../components/flashcards/flashcard.jsx";
+import OutlinedCard from '../components/flashcards/flashcard.jsx'
 
 export default function AddDeck() {
   useDocumentTitle('Ajouter un deck – FichesFlow')
@@ -19,12 +19,30 @@ export default function AddDeck() {
 
   const markdownRef = useRef(null)
   const [cards, setCards] = useState([])
+  const [editingId, setEditingId] = useState(null)
 
-  const handleCreateCard = () => {
+  /* create or update card */
+  const handleSaveCard = () => {
     const md = markdownRef.current?.getMarkdown()
     if (!md || md.trim() === '') return
-    setCards((prev) => [...prev, {id: crypto.randomUUID(), content: md}])
+
+    if (editingId) {
+      // update existing
+      setCards((prev) => prev.map((c) => (c.id === editingId ? {...c, content: md} : c)))
+      setEditingId(null)
+    } else {
+      // create new
+      setCards((prev) => [...prev, {id: crypto.randomUUID(), content: md}])
+    }
     markdownRef.current.setMarkdown('')
+  }
+
+  /* load card into editor for editing */
+  const handleEditCard = (id) => {
+    const card = cards.find((c) => c.id === id)
+    if (!card) return
+    markdownRef.current?.setMarkdown(card.content)
+    setEditingId(id)
   }
 
   return (
@@ -46,24 +64,23 @@ export default function AddDeck() {
         <MarkdownEditor ref={markdownRef}/>
       </Box>
 
-      <Button
-        variant="contained"
-        sx={{mt: 2, mb: 3}}
-        onClick={handleCreateCard}
-      >
-        Ajouter une fiche
+      <Button variant="contained" sx={{mt: 2, mb: 3}} onClick={handleSaveCard}>
+        {editingId ? 'Mettre à jour la fiche' : 'Ajouter une fiche'}
       </Button>
 
-      <Grid container direction="row" spacing={2}>
+      <Grid container spacing={2}>
         {cards.map((card) => (
           <Grid item key={card.id}>
             <OutlinedCard
               sujet={titre || 'Titre de la fiche'}
-              // niveau="Niveau de difficulté"
-              // theme="Thème de la fiche"
               description_recto={card.content}
               description_verso="Description du verso de la fiche (optionnel)"
             />
+            <Box mt={1} textAlign="center">
+              <Button size="small" variant="outlined" onClick={() => handleEditCard(card.id)}>
+                Modifier
+              </Button>
+            </Box>
           </Grid>
         ))}
       </Grid>
