@@ -8,7 +8,6 @@ import Leaderboard from './pages/Leaderboard.jsx'
 import TestPlayground from './pages/TestPlayground.jsx'
 import AddDeck from './pages/AddDeck.jsx'
 import Root from './components/layout/Root.jsx'
-import Test from './pages/Test.jsx'
 
 export const router = createBrowserRouter([
   {
@@ -23,7 +22,6 @@ export const router = createBrowserRouter([
       {path: 'playground', Component: TestPlayground},
       {path: 'register', Component: Register},
       {path: 'login', Component: Login},
-      {path: 'test', Component: Test},
 
       /* --------- Decks --------- */
       {
