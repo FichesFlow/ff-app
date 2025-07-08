@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
 import {useDocumentTitle} from '../hooks/useDocumentTitle.js'
 import MarkdownEditor from '../components/shared/MarkdownEditor.jsx'
 import DeckInfos from '../components/deck/DeckInfos.jsx'
@@ -20,6 +21,7 @@ export default function AddDeck() {
   const markdownRef = useRef(null)
   const [cards, setCards] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   /* create or update card */
   const handleSaveCard = () => {
@@ -35,7 +37,7 @@ export default function AddDeck() {
     markdownRef.current.setMarkdown('')
   }
 
-  /* load card into editor for editing */
+  /* edit existing */
   const handleEditCard = (id) => {
     const card = cards.find((c) => c.id === id)
     if (!card) return
@@ -49,6 +51,33 @@ export default function AddDeck() {
     if (editingId === id) {
       markdownRef.current?.setMarkdown('')
       setEditingId(null)
+    }
+  }
+
+  /* send deck */
+  const handleSubmitDeck = async () => {
+    if (!titre.trim() || cards.length === 0) {
+      alert('Titre et au moins une fiche sont requis')
+      return
+    }
+    setIsSubmitting(true)
+    const payload = {
+      title: titre, description, language, visibility, status, cards: cards.map(({content}) => ({front: content}))
+    }
+    try {
+      const res = await fetch('/api/decks', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+      })
+      console.log('Mock response', res.status)
+      console.log('Mock data', JSON.stringify(payload))
+      alert('Deck envoyé (mock) !')
+      // reset optionnel
+      // setTitre(''); setDescription(''); setCards([])
+    } catch (e) {
+      console.error(e)
+      alert('Erreur réseau (mock)')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -71,9 +100,14 @@ export default function AddDeck() {
         <MarkdownEditor ref={markdownRef}/>
       </Box>
 
-      <Button variant="contained" sx={{mt: 2, mb: 3}} onClick={handleSaveCard}>
-        {editingId ? 'Mettre à jour la fiche' : 'Ajouter une fiche'}
-      </Button>
+      <Stack direction="row" spacing={2} sx={{mt: 2, mb: 3}}>
+        <Button variant="contained" onClick={handleSaveCard}>
+          {editingId ? 'Mettre à jour la fiche' : 'Ajouter une fiche'}
+        </Button>
+        <Button variant="contained" onClick={handleSubmitDeck}>
+          Créer le deck
+        </Button>
+      </Stack>
 
       <Grid container spacing={2}>
         {cards.map((card) => (
@@ -96,8 +130,7 @@ export default function AddDeck() {
                 Supprimer
               </Button>
             </Box>
-          </Grid>
-        ))}
+          </Grid>))}
       </Grid>
     </Container>
   )
