@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import FicheEditor from '../fiches/FicheEditor';
 import OutlinedCard from './flashcard';
+import { Button, Box, Snackbar, Alert } from '@mui/material';
+
 
 export default function FlashcardGestion() {
   const [flashcards, setFlashcards] = useState([]);
+  const [alertOpen, setAlertOpen] = useState(false);
+
 
 // constante pour gérer l'ajout d'une flashcard 
   const gestion_Add_Flashcard = ({ sujet, niveau, description,theme }) => {
@@ -27,6 +31,53 @@ export default function FlashcardGestion() {
       description_verso,
     }]);
   };
+  const envoyerToutesLesFlashcards = async () => {
+    try {
+      // Vu que par defaut il n'y a pas de deck existant, et que deck, created_at, updated_at ne peuvent pas etre null
+      //  alors il faut init ici via la method Post mais pour api/decks
+      const deckRes = await fetch("https://localhost/api/decks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/ld+json",
+        },
+        body: JSON.stringify({
+          title: "Deck généré automatiquement",
+        }),
+      });
+
+      if (!deckRes.ok) {
+        console.error("Erreur lors de la création du deck :", await deckRes.text());
+        return;
+      }
+
+      const deckData = await deckRes.json();
+      const deckId = deckData['@id'];
+      //  method Post pour api/cards 
+      for (const card of flashcards) {
+        const reponse = await fetch("https://localhost/api/cards",{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/ld+json",
+        },
+        body: JSON.stringify({
+          sujet: card.sujet,
+          niveau: card.niveau,
+          theme: card.theme,
+          recto: card.description_recto,
+          verso: card.description_verso,
+          deck: deckId,
+        }),
+      });
+      if (!reponse.ok) {
+        console.error("L'envoi n'a pas marché :", await reponse.text());
+      }
+    }
+    setAlertOpen(true);
+    } 
+    catch (error) {
+      console.error("Error lors de l'envoi global:", error);
+    }
+  };
 
   return (
     <div>
@@ -36,6 +87,20 @@ export default function FlashcardGestion() {
           <OutlinedCard key={index} {...card} />
         ))}
       </div>
+       {/* Bouton Envoyer (visible uniquement s'il y a des flashcards) */}
+       {flashcards.length > 0 && (
+        <Box sx={{ mt: 3 }}>
+          <Button variant="contained" color="success" onClick={envoyerToutesLesFlashcards}>
+            Envoyer toutes les flashcards
+          </Button>
+        </Box>
+      )}
+      {/* Snackbar pour confirmation */}
+      <Snackbar open={alertOpen} autoHideDuration={3000} onClose={() => setAlertOpen(false)}>
+        <Alert onClose={() => setAlertOpen(false)} severity="success" sx={{ width: '100%' }}>
+          Flashcards envoyées avec succès !
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
