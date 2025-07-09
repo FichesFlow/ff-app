@@ -13,7 +13,7 @@ import {createDeck} from "../api/deck.js";
 import {useNavigate} from 'react-router';
 import useTheme from "../hooks/useTheme.js";
 
-export default function AddDeck() {
+export default function DeckForm() {
   useDocumentTitle('Ajouter un deck – FichesFlow')
 
   const [titre, setTitre] = useState('')
@@ -64,7 +64,10 @@ export default function AddDeck() {
   /* send deck */
   const handleSubmitDeck = async () => {
     if (!titre.trim() || cards.length === 0) {
-      alert('Titre et au moins une fiche sont requis')
+      toast('Veuillez fournir un titre et au moins une fiche avant de soumettre le deck.', {
+        position: "bottom-right",
+        theme: currentTheme === 'dark' ? 'dark' : 'light'
+      })
       return
     }
 
@@ -97,7 +100,7 @@ export default function AddDeck() {
           position: "bottom-right",
           theme: currentTheme === 'dark' ? 'dark' : 'light'
         });
-        navigate('/')
+        navigate('/decks/' + res.id)
       } else {
         toast.error('Erreur lors de la création du deck', {
           position: "bottom-right",
@@ -106,7 +109,10 @@ export default function AddDeck() {
       }
     } catch (e) {
       console.error(e)
-      alert('Erreur réseau (mock)')
+      toast.error('Échec de la création du deck. Veuillez réessayer.', {
+        position: "bottom-right",
+        theme: currentTheme === 'dark' ? 'dark' : 'light'
+      });
     } finally {
       setIsSubmitting(false)
     }
@@ -133,11 +139,20 @@ export default function AddDeck() {
       </Box>
 
       <Stack direction="row" spacing={2} sx={{mt: 2, mb: 3}}>
-        <Button variant="contained" onClick={handleSaveCard}>
+        <Button
+          variant="contained"
+          onClick={handleSaveCard}
+          disabled={isSubmitting}
+        >
           {editingId ? 'Mettre à jour la fiche' : 'Ajouter une fiche'}
         </Button>
-        <Button variant="contained" onClick={handleSubmitDeck} color="secondary">
-          Créer le deck
+        <Button
+          variant="contained"
+          onClick={handleSubmitDeck}
+          color="secondary"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Envoi en cours...' : 'Créer le deck'}
         </Button>
       </Stack>
 

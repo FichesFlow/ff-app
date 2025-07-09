@@ -63,7 +63,6 @@ export default function SignInCard() {
     return isValid;
   };
 
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (emailError || passwordError) {
