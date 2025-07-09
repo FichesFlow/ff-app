@@ -36,7 +36,7 @@ export default function ContributionsSection() {
       <Stack direction={{xs: 'column', sm: 'row'}} spacing={2}>
         <Button
           component={Link}
-          to="/notes/new"
+          to="/decks/new"
           variant="contained"
           fullWidth
         >
