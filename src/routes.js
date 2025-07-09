@@ -10,6 +10,7 @@ import AddDeck from './pages/AddDeck.jsx'
 import Root from './components/layout/Root.jsx'
 import Editor from './pages/Editor.jsx'
 import Contact from './pages/Contact.jsx'
+import LegalTerms from './pages/LegalTerms.jsx'
 
 export const router = createBrowserRouter([{
   path: '/',
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([{
     {path: 'login', Component: Login},
     {path: 'Edition', Component: Editor},
     {path: '/contact', Component: Contact},
+    {path: '/legal/terms', Component: LegalTerms},
 
     /* --------- Decks --------- */
     {
