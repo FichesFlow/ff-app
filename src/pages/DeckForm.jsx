@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -9,18 +9,23 @@ import MarkdownEditor from '../components/shared/MarkdownEditor.jsx'
 import DeckInfos from '../components/deck/DeckInfos.jsx'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
 import {toast, ToastContainer} from 'react-toastify';
-import {createDeck} from "../api/deck.js";
-import {useNavigate} from 'react-router';
+import {createDeck, fetchDeck, updateDeck} from "../api/deck.js";
+import {useNavigate, useParams} from 'react-router';
 import useTheme from "../hooks/useTheme.js";
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function DeckForm() {
-  useDocumentTitle('Ajouter un deck – FichesFlow')
+  const {id} = useParams();
+  const isEditMode = !!id;
+
+  useDocumentTitle(isEditMode ? 'Modifier un deck – FichesFlow' : 'Ajouter un deck – FichesFlow')
 
   const [titre, setTitre] = useState('')
   const [description, setDescription] = useState('')
   const [language, setLanguage] = useState('fr')
   const [visibility, setVisibility] = useState('private')
   const [status, setStatus] = useState('draft')
+  const [isLoading, setIsLoading] = useState(isEditMode)
 
   const markdownRef = useRef(null)
   const [cards, setCards] = useState([])
@@ -29,6 +34,46 @@ export default function DeckForm() {
 
   const currentTheme = useTheme();
   const navigate = useNavigate();
+
+  /* Fetch deck data when in edit mode */
+  useEffect(() => {
+    if (isEditMode) {
+      const getDeck = async () => {
+        try {
+          setIsLoading(true);
+          const deckData = await fetchDeck(id);
+
+          setTitre(deckData.title || '');
+          setDescription(deckData.description || '');
+          setLanguage((deckData.language || 'FR').toLowerCase());
+          setVisibility(deckData.visibility || 'private');
+          setStatus(deckData.status || 'draft');
+
+          const transformedCards = deckData.cards.map(card => {
+            const frontSide = card.cardSides.find(side => side.side === "front");
+            return {
+              id: crypto.randomUUID(),
+              content: frontSide?.cardBlock?.content || '',
+              position: card.position
+            };
+          });
+
+          transformedCards.sort((a, b) => a.position - b.position);
+          setCards(transformedCards);
+        } catch (error) {
+          console.error("Failed to fetch deck:", error);
+          toast.error('Impossible de charger le deck', {
+            position: "bottom-right",
+            theme: currentTheme === 'dark' ? 'dark' : 'light'
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      getDeck();
+    }
+  }, [currentTheme, id, isEditMode]);
 
   /* create or update card */
   const handleSaveCard = () => {
@@ -64,7 +109,7 @@ export default function DeckForm() {
   /* send deck */
   const handleSubmitDeck = async () => {
     if (!titre.trim() || cards.length === 0) {
-      toast('Veuillez fournir un titre et au moins une fiche avant de soumettre le deck.', {
+      toast.error('Veuillez fournir un titre et au moins une fiche avant de soumettre le deck.', {
         position: "bottom-right",
         theme: currentTheme === 'dark' ? 'dark' : 'light'
       })
@@ -92,24 +137,35 @@ export default function DeckForm() {
       }))
     }
 
-    try {
-      const res = await createDeck(JSON.stringify(payload))
+    if (isEditMode) {
+      payload.id = id
+    }
 
-      if (res && res.id) {
+    try {
+      let response;
+
+      if (isEditMode) {
+        response = await updateDeck(id, JSON.stringify(payload));
+        toast.success('Deck mis à jour avec succès !', {
+          position: "bottom-right",
+          theme: currentTheme === 'dark' ? 'dark' : 'light'
+        });
+      } else {
+        response = await createDeck(JSON.stringify(payload));
         toast.success('Deck créé avec succès !', {
           position: "bottom-right",
           theme: currentTheme === 'dark' ? 'dark' : 'light'
         });
-        navigate('/decks/' + res.id)
+      }
+
+      if (response && (response.id || id)) {
+        navigate('/decks/' + (response.id || id));
       } else {
-        toast.error('Erreur lors de la création du deck', {
-          position: "bottom-right",
-          theme: currentTheme === 'dark' ? 'dark' : 'light'
-        });
+        throw new Error('Invalid response');
       }
     } catch (e) {
       console.error(e)
-      toast.error('Échec de la création du deck. Veuillez réessayer.', {
+      toast.error(`Échec de ${isEditMode ? 'la mise à jour' : 'la création'} du deck. Veuillez réessayer.`, {
         position: "bottom-right",
         theme: currentTheme === 'dark' ? 'dark' : 'light'
       });
@@ -118,6 +174,14 @@ export default function DeckForm() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <Container maxWidth="lg"
+                 sx={{mt: 4, mb: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh'}}>
+        <CircularProgress/>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
@@ -152,7 +216,7 @@ export default function DeckForm() {
           color="secondary"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Envoi en cours...' : 'Créer le deck'}
+          {isSubmitting ? 'Envoi en cours...' : isEditMode ? 'Mettre à jour le deck' : 'Créer le deck'}
         </Button>
       </Stack>
 
@@ -165,7 +229,12 @@ export default function DeckForm() {
               description_verso="Description du verso de la fiche (optionnel)"
             />
             <Box mt={1} display="flex" gap={1} justifyContent="center">
-              <Button size="small" variant="outlined" onClick={() => handleEditCard(card.id)}>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => handleEditCard(card.id)}
+                disabled={isSubmitting}
+              >
                 Modifier
               </Button>
               <Button
@@ -173,6 +242,7 @@ export default function DeckForm() {
                 variant="outlined"
                 color="error"
                 onClick={() => handleDeleteCard(card.id)}
+                disabled={isSubmitting}
               >
                 Supprimer
               </Button>
