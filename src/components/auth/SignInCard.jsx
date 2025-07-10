@@ -51,9 +51,9 @@ export default function SignInCard() {
       setEmailErrorMessage('');
     }
 
-    if (!password.value || password.value.length < 8) {
+    if (!password.value) {
       setPasswordError(true);
-      setPasswordErrorMessage('Le mot de passe doit contenir au moins 8 caractères.');
+      setPasswordErrorMessage('Le mot de passe est requis.');
       isValid = false;
     } else {
       setPasswordError(false);
