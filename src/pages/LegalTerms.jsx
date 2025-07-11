@@ -23,6 +23,10 @@ export default function LegalTerms() {
   const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
 
   return (
+     <>
+    <title>Conditions générales – FichesFlow </title>
+      <meta name="description" content="Nos conditions d'utilisation" />
+
     <Box
       sx={{
         display: 'flex',
@@ -89,6 +93,7 @@ export default function LegalTerms() {
         ))}
       </Container>
     </Box>
+    </>
   );
 }
 

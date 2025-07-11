@@ -11,6 +11,10 @@ const teamMembers = [
 
 export default function About() {
   return (
+    <>
+    <title>À propos – FichesFlow</title>
+      <meta name="description" content="En savoir plus sur notre mission, notre équipe et nos technologies utilisées" />
+
     <Container maxWidth="md" component="main" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
         À propos
@@ -75,6 +79,7 @@ export default function About() {
         </Grid>
       </Box>
     </Container>
+    </>
   );
 }
 
