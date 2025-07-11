@@ -44,7 +44,7 @@ export default function ContributionsSection() {
         </Button>
         <Button
           component={Link}
-          to="/contributions"
+          to="/my-decks"
           variant="outlined"
           fullWidth
         >
