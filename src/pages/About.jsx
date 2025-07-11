@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Typography, Grid, Card, CardContent, Avatar, Box, Link } from '@mui/material';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 
 const teamMembers = [
   { name: 'Mina Zakhary', role: 'Project Manager', photo: '/assets/team/alice.jpg' },
@@ -10,7 +11,12 @@ const teamMembers = [
 ];
 
 export default function About() {
+
+   useDocumentTitle('À propos – FichesFlow');
+
   return (
+    <>
+    <meta name="description" content="En savoir plus sur notre mission, notre équipe et nos technologies utilisées" />
     <Container maxWidth="md" component="main" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
         À propos
@@ -75,6 +81,7 @@ export default function About() {
         </Grid>
       </Box>
     </Container>
+    </>
   );
 }
 

@@ -8,6 +8,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
 
 const sections = [
   { id: 'objet', title: '1. Objet' },
@@ -21,8 +22,11 @@ const sections = [
 export default function LegalTerms() {
   const theme = useTheme();
   const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
+  useDocumentTitle('Conditions générales – FichesFlow');
 
   return (
+  <>
+    <meta name="description" content="Nos conditions d'utilisation" />
     <Box
       sx={{
         display: 'flex',
@@ -89,6 +93,7 @@ export default function LegalTerms() {
         ))}
       </Container>
     </Box>
+    </>
   );
 }
 

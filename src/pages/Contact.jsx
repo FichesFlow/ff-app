@@ -10,6 +10,8 @@ import {
   Box,
   Link
 } from '@mui/material';
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js';
+
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -43,11 +45,11 @@ export default function Contact() {
     });
   };
 
+  useDocumentTitle('Contact – FichesFlow');
+
   return (
     <>
-      <title>Contact – FichesFlow</title>
-      <meta name="description" content="Contactez FichesFlow via notre formulaire ou retrouvez-nous sur GitHub." />
-
+      <meta name="description" content="Contactez-nous pour toute question ou suggestion concernant FichesFlow." />
       <Container maxWidth="sm" sx={{ mt: 6, mb: 6 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Contact
