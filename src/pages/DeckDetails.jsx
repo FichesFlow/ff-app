@@ -6,14 +6,18 @@ import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import SchoolIcon from '@mui/icons-material/School'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
 import axios from 'axios'
+import {useAuth} from '../context/AuthContext'
 
 export default function DeckDetails() {
   const {id} = useParams()
   const [deck, setDeck] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const {isAuthenticated} = useAuth()
 
   useEffect(() => {
     let isMounted = true
@@ -65,7 +69,7 @@ export default function DeckDetails() {
             {deck.description}
           </Typography>
         )}
-        <Box mt={2}>
+        <Box mt={2} display="flex" justifyContent="center" gap={2}>
           <Button
             component={RouterLink}
             to={`/decks/${id}/edit`}
@@ -74,6 +78,25 @@ export default function DeckDetails() {
           >
             Éditer le deck
           </Button>
+
+          <Tooltip
+            title={isAuthenticated ? "" : "Connectez-vous pour réviser ce deck"}
+            arrow
+          >
+            <span>
+              <Button
+                component={RouterLink}
+                to={isAuthenticated ? `/review?deck=${id}` : "#"}
+                variant="contained"
+                color="secondary"
+                size="small"
+                startIcon={<SchoolIcon/>}
+                disabled={!isAuthenticated}
+              >
+                Réviser
+              </Button>
+            </span>
+          </Tooltip>
         </Box>
       </Box>
 
