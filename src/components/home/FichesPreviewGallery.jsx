@@ -32,7 +32,7 @@ export default function FichesPreviewGallery() {
       <Box textAlign="center" mt={3}>
         <Button
           component={Link}
-          to="/notes"
+          to="/decks"
           variant="contained"
           size="medium"
         >
