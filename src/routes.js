@@ -8,6 +8,7 @@ import Leaderboard from './pages/Leaderboard.jsx'
 import TestPlayground from './pages/TestPlayground.jsx'
 import DeckForm from './pages/DeckForm.jsx'
 import DeckDetails from './pages/DeckDetails.jsx'
+import DeckGallery from './pages/DeckGallery.jsx'
 import Root from './components/layout/Root.jsx'
 import Editor from './pages/Editor.jsx'
 import Contact from './pages/Contact.jsx'
@@ -37,7 +38,7 @@ export const router = createBrowserRouter([{
     {
       path: 'decks',
       children: [
-        {index: true, Component: NotFound /* TODO: DeckList */},
+        {index: true, Component: DeckGallery},
         {path: 'new', Component: DeckForm},
         {path: ':id', Component: DeckDetails},
         {path: ':id/edit', Component: DeckForm /* TODO: DeckEdit  */}

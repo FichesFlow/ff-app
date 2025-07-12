@@ -78,7 +78,7 @@ export default function MyDecks() {
       <Grid container spacing={3}>
         {decks.map((deck) => (
           <Grid item key={deck.id} xs={12} sm={6} md={4}>
-            <DeckPreviewCard deck={deck}/>
+            <DeckPreviewCard deck={deck} showEditButton={true} showMetadata={true}/>
           </Grid>
         ))}
       </Grid>

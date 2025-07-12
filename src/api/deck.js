@@ -13,11 +13,15 @@ const authHeaders = () => {
 /**
  * Fetch a paginated list of decks.
  * @param {Object} params - Optional query parameters (e.g. { page: 1 })
+ * @param {Object} options - Optional axios request options
  * @returns {Promise<any>}
  */
-export async function fetchDecks(params = {}) {
-  const {data} = await axios.get(BASE_URL, {params})
-  return data
+export async function fetchDecks(params = {}, options = {}) {
+  const {data} = await axios.get(BASE_URL, {
+    params,
+    ...options
+  });
+  return data;
 }
 
 /**
