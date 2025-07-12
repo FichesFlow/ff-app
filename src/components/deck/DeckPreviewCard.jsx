@@ -9,7 +9,7 @@ import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
 import CardActions from "@mui/material/CardActions";
 
-export default function DeckPreviewCard({deck}) {
+export default function DeckPreviewCard({deck, showEditButton = false, showMetadata = false}) {
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -32,6 +32,7 @@ export default function DeckPreviewCard({deck}) {
         return visibility;
     }
   };
+
   return (
     <Card
       sx={{
@@ -56,16 +57,20 @@ export default function DeckPreviewCard({deck}) {
           {deck.description || "Aucune description"}
         </Typography>
         <Stack direction="row" spacing={1} sx={{mb: 1}}>
-          <Chip
-            label={deck.status}
-            size="small"
-            color={getStatusColor(deck.status)}
-          />
-          <Chip
-            label={getVisibilityIcon(deck.visibility)}
-            size="small"
-            variant="outlined"
-          />
+          {showMetadata && (
+            <>
+              <Chip
+                label={deck.status}
+                size="small"
+                color={getStatusColor(deck.status)}
+              />
+              <Chip
+                label={getVisibilityIcon(deck.visibility)}
+                size="small"
+                variant="outlined"
+              />
+            </>
+          )}
           <Chip
             label={`${deck.card_count || 0} fiches`}
             size="small"
@@ -82,15 +87,17 @@ export default function DeckPreviewCard({deck}) {
         >
           Voir
         </Button>
-        <Button
-          size="small"
-          component={Link}
-          to={`/decks/${deck.id}/edit`}
-          color="primary"
-          startIcon={<EditIcon/>}
-        >
-          Modifier
-        </Button>
+        {showEditButton && (
+          <Button
+            size="small"
+            component={Link}
+            to={`/decks/${deck.id}/edit`}
+            color="primary"
+            startIcon={<EditIcon/>}
+          >
+            Modifier
+          </Button>
+        )}
       </CardActions>
     </Card>
   )
