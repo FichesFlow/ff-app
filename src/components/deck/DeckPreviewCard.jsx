@@ -9,7 +9,15 @@ import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
 import CardActions from "@mui/material/CardActions";
 
-export default function DeckPreviewCard({deck, showEditButton = false, showMetadata = false}) {
+export default function DeckPreviewCard(
+  {
+    deck,
+    showEditButton = false,
+    showMetadata = false,
+    showSeeButton = true,
+    transition = true
+  }
+) {
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -39,11 +47,13 @@ export default function DeckPreviewCard({deck, showEditButton = false, showMetad
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: 6
-        }
+        ...(transition && {
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: 6
+          }
+        })
       }}
     >
       <CardContent sx={{flexGrow: 1}}>
@@ -78,27 +88,31 @@ export default function DeckPreviewCard({deck, showEditButton = false, showMetad
           />
         </Stack>
       </CardContent>
-      <CardActions>
-        <Button
-          size="small"
-          component={Link}
-          to={`/decks/${deck.id}`}
-          startIcon={<VisibilityIcon/>}
-        >
-          Voir
-        </Button>
-        {showEditButton && (
-          <Button
-            size="small"
-            component={Link}
-            to={`/decks/${deck.id}/edit`}
-            color="primary"
-            startIcon={<EditIcon/>}
-          >
-            Modifier
-          </Button>
-        )}
-      </CardActions>
+      {(showSeeButton || showEditButton) &&
+        <CardActions>
+          {showSeeButton && (
+            <Button
+              size="small"
+              component={Link}
+              to={`/decks/${deck.id}`}
+              startIcon={<VisibilityIcon/>}
+            >
+              Voir
+            </Button>
+          )}
+          {showEditButton && (
+            <Button
+              size="small"
+              component={Link}
+              to={`/decks/${deck.id}/edit`}
+              color="primary"
+              startIcon={<EditIcon/>}
+            >
+              Modifier
+            </Button>
+          )}
+        </CardActions>
+      }
     </Card>
   )
 }
