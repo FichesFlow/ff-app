@@ -16,6 +16,7 @@ import LegalTerms from './pages/LegalTerms.jsx'
 import About from './pages/About.jsx'
 import MyDecks from './pages/MyDecks.jsx'
 import ReviewQueue from './pages/ReviewQueue.jsx';
+import ReviewSetup from './pages/ReviewSetup.jsx';
 
 export const router = createBrowserRouter([{
   path: '/',
@@ -34,7 +35,6 @@ export const router = createBrowserRouter([{
     {path: '/legal/terms', Component: LegalTerms},
     {path: '/about', Component: About},
     {path: '/my-decks', Component: MyDecks},
-    { path: '/review-queue', Component: ReviewQueue },
 
     /* --------- Decks --------- */
     {
@@ -43,7 +43,17 @@ export const router = createBrowserRouter([{
         {index: true, Component: DeckGallery},
         {path: 'new', Component: DeckForm},
         {path: ':id', Component: DeckDetails},
-        {path: ':id/edit', Component: DeckForm /* TODO: DeckEdit  */}
+        {path: ':id/edit', Component: DeckForm}
+      ]
+    },
+
+    /* --------- Révisions --------- */
+    { path: '/review-queue', Component: ReviewQueue },
+    {
+      path: 'review',
+      children: [
+        {index: true, Component: ReviewSetup},
+        {path: 'session', Component: NotFound /* TODO: review session page */},
       ]
     },
 
