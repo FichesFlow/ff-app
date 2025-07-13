@@ -37,34 +37,20 @@ export default function ReviewSetup() {
 
   const handleRandomSelection = (count) => {
     setRandomSelectionCount(count);
+    if (count === 0) return;
 
-    if (count === 0) {
-      // If slider is at 0, keep current selection
-      return;
-    }
-
-    // Randomly select 'count' cards from the deck
-    if (deck.cards && deck.cards.length > 0) {
+    if (deck.cards?.length) {
       const shuffled = [...deck.cards].sort(() => 0.5 - Math.random());
-      const randomCards = shuffled.slice(0, count);
-      const randomCardIds = randomCards.map(card => card.id);
-      setSelectedCards(randomCardIds);
+      setSelectedCards(shuffled.slice(0, count).map(card => card.id));
     }
   };
 
-
-  // Add this function to handle card selection
   const handleCardSelection = (cardId) => {
-    setSelectedCards(prev => {
-      if (prev.includes(cardId)) {
-        return prev.filter(id => id !== cardId);
-      } else {
-        return [...prev, cardId];
-      }
-    });
+    setSelectedCards(prev =>
+      prev.includes(cardId) ? prev.filter(id => id !== cardId) : [...prev, cardId]
+    );
   };
 
-// Modify handleStartReview to include selected cards
   const handleStartReview = () => {
     navigate('/review/session', {
       state: {
@@ -76,30 +62,20 @@ export default function ReviewSetup() {
     });
   };
 
-  // Update title based on loading state and deck data
   useDocumentTitle(
-    loading
-      ? "Chargement de la révision..."
-      : error || !deck
-        ? "Erreur - Préparation de la révision"
-        : `Révision: ${deck.title} - Configuration`
+    loading ? "Chargement de la révision..." :
+      error || !deck ? "Erreur - Préparation de la révision" :
+        `Révision: ${deck.title} - Configuration`
   );
 
-  // Redirect to login if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login', {replace: true});
-    }
+    if (!isAuthenticated) navigate('/login', {replace: true});
   }, [isAuthenticated, navigate]);
 
-  // Redirect to decks if no deck ID is provided
   useEffect(() => {
-    if (isAuthenticated && !deckId) {
-      navigate('/decks', {replace: true});
-    }
+    if (isAuthenticated && !deckId) navigate('/decks', {replace: true});
   }, [deckId, isAuthenticated, navigate]);
 
-  // Fetch deck data
   useEffect(() => {
     if (!isAuthenticated || !deckId) return;
 
@@ -108,15 +84,10 @@ export default function ReviewSetup() {
         setLoading(true);
         const deckData = await fetchDeck(deckId);
         setDeck(deckData);
+        setCardCount(Math.min(10, deckData.card_count));
 
-        // Initialize card count to minimum of 10 or the total number of cards
-        const initialCount = Math.min(10, deckData.card_count);
-        setCardCount(initialCount);
-
-        // Pre-select all cards by default
-        if (deckData.cards && deckData.cards.length > 0) {
-          const allCardIds = deckData.cards.map(card => card.id);
-          setSelectedCards(allCardIds);
+        if (deckData.cards?.length) {
+          setSelectedCards(deckData.cards.map(card => card.id));
         }
       } catch (err) {
         console.error('Error fetching deck:', err);
@@ -129,23 +100,16 @@ export default function ReviewSetup() {
     getDeck();
   }, [deckId, isAuthenticated]);
 
-  // Render loading state
   if (!isAuthenticated) return null;
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="60vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
         <CircularProgress aria-label="Chargement de la configuration de révision"/>
       </Box>
     );
   }
 
-  // Render error state
   if (error || !deck) {
     return (
       <Container maxWidth="md" sx={{mt: 4}}>
@@ -153,10 +117,7 @@ export default function ReviewSetup() {
           {error || "Deck non trouvé. Veuillez sélectionner un autre deck."}
         </Alert>
         <Box mt={2}>
-          <Button
-            variant="contained"
-            onClick={() => navigate('/review-queue')}
-          >
+          <Button variant="contained" onClick={() => navigate('/review-queue')}>
             Retour à ma file de révision
           </Button>
         </Box>
@@ -170,7 +131,6 @@ export default function ReviewSetup() {
         Configuration de la révision
       </Typography>
 
-
       <Box mb={4}>
         <DeckPreviewCard deck={deck} showSeeButton={false} transition={false}/>
       </Box>
@@ -181,33 +141,22 @@ export default function ReviewSetup() {
           <Box sx={{display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 1}}>
             <Tooltip
               title='Affiche le recto de la carte ; appuyez sur "Afficher la réponse" ou la barre espace pour révéler le verso, puis notez votre réponse.'
-              arrow
-              placement="top"
-            >
+              arrow placement="top">
               <Button
                 variant={mode === 'flashcard' ? 'contained' : 'outlined'}
-                color="primary"
                 onClick={() => setMode('flashcard')}
                 sx={{width: '150px'}}
               >
                 Flashcards
               </Button>
             </Tooltip>
-            <Tooltip
-              title="En développement"
-              arrow
-              placement="top"
-            >
-              <span> {/* Wrapper needed for disabled buttons */}
+            <Tooltip title="En développement" arrow placement="top">
+              <span>
                 <Button
                   variant={mode === 'qcm' ? 'contained' : 'outlined'}
-                  color="primary"
                   onClick={() => setMode('qcm')}
                   disabled
-                  sx={{
-                    width: '150px',
-                    opacity: 0.6
-                  }}
+                  sx={{width: '150px', opacity: 0.6}}
                 >
                   QCM
                 </Button>
@@ -264,7 +213,6 @@ export default function ReviewSetup() {
                 {deck.cards?.map((card, index) => {
                   const frontSide = card.cardSides.find(side => side.side === "front");
                   const backSide = card.cardSides.find(side => side.side === "back");
-
                   const frontContent = frontSide?.cardBlock?.content || "";
                   const backContent = backSide?.cardBlock?.content || null;
 
