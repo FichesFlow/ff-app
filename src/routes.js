@@ -15,6 +15,7 @@ import Contact from './pages/Contact.jsx'
 import LegalTerms from './pages/LegalTerms.jsx'
 import About from './pages/About.jsx'
 import MyDecks from './pages/MyDecks.jsx'
+import ReviewQueue from './pages/ReviewQueue.jsx';
 
 export const router = createBrowserRouter([{
   path: '/',
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([{
     {path: '/legal/terms', Component: LegalTerms},
     {path: '/about', Component: About},
     {path: '/my-decks', Component: MyDecks},
+    { path: '/review-queue', Component: ReviewQueue },
 
     /* --------- Decks --------- */
     {

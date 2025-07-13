@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = `${import.meta.env.VITE_API_URL}/review-queue`
+const BASE_URL = `${import.meta.env.VITE_API_URL}/review_queues`
 
 /**
  * Return Authorization header when a JWT token is stored in localStorage.
@@ -49,6 +49,17 @@ export async function removeFromRevisionQueue(queueItemId) {
   if (!queueItemId) throw new Error('removeFromRevisionQueue: queueItemId is required')
 
   const {data} = await axios.delete(`${BASE_URL}/${queueItemId}`, {
+    headers: authHeaders(),
+  })
+  return data
+}
+
+/**
+ * Get the user's review queues.
+ * @returns {Promise<any>}
+ */
+export async function getMyReviewQueues() {
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/my-review-queues`, {
     headers: authHeaders(),
   })
   return data
