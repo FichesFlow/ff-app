@@ -66,14 +66,15 @@ export default function DeckDetails() {
     setAddingToQueue(true)
     try {
       await addToRevisionQueue(id)
-      toast.success("Deck ajouté à votre fil de révision", {
-        theme: currentTheme === 'dark' ? 'dark' : 'light'
-      })
+      toast.success("Deck ajouté à votre file de révision")
     } catch (err) {
       console.error('Error adding deck to queue:', err)
-      toast.error("Erreur lors de l'ajout du deck à votre fil de révision", {
-        theme: currentTheme === 'dark' ? 'dark' : 'light'
-      });
+      const errorResponse = err.response?.data;
+      if (err.response?.status === 400 && errorResponse?.detail?.includes("already in your review queue")) {
+        toast.warning("Ce deck est déjà dans votre file de révision");
+      } else {
+        toast.error("Erreur lors de l'ajout du deck à votre file de révision");
+      }
     } finally {
       setAddingToQueue(false)
     }
@@ -150,7 +151,7 @@ export default function DeckDetails() {
             </Tooltip>
 
             <Tooltip
-              title={isAuthenticated ? "" : "Connectez-vous pour ajouter ce deck à votre fil de révision"}
+              title={isAuthenticated ? "" : "Connectez-vous pour ajouter ce deck à votre file de révision"}
               arrow
             >
               <span>
@@ -161,10 +162,10 @@ export default function DeckDetails() {
                   startIcon={<AddIcon/>}
                   disabled={!isAuthenticated || addingToQueue}
                   onClick={handleAddToQueue}
-                  aria-label={`Ajouter le deck ${deck.title} à mon fil de révision`}
+                  aria-label={`Ajouter le deck ${deck.title} à ma file de révision`}
                   aria-busy={addingToQueue}
                 >
-                  {addingToQueue ? 'Ajout en cours...' : 'Ajouter à mon fil de révision'}
+                  {addingToQueue ? 'Ajout en cours...' : 'Ajouter à ma file de révision'}
                 </Button>
               </span>
             </Tooltip>
@@ -209,6 +210,7 @@ export default function DeckDetails() {
         position="bottom-right"
         role="alert"
         aria-live="polite"
+        theme={currentTheme === 'dark' ? 'dark' : 'light'}
       />
     </Container>
   )
