@@ -1,7 +1,10 @@
-import SignIn from '../components/templates/sign-in/SignIn.jsx';
+import SignInCard from "../components/auth/SignInCard.jsx";
+import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 
 function Login() {
-  return (<SignIn/>);
+  useDocumentTitle("Connexion – FichesFlow");
+
+  return (<SignInCard/>);
 }
 
 export default Login;

@@ -1,7 +1,10 @@
-import SignUp from '../components/templates/sign-up/SignUp.jsx';
+import SignUpCard from "../components/auth/SignUpCard.jsx";
+import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 
 function Register() {
-  return (<SignUp/>);
+  useDocumentTitle("Inscription – FichesFlow");
+
+  return (<SignUpCard/>)
 }
 
 export default Register;

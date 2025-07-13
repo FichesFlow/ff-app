@@ -1,9 +1,12 @@
-import React from 'react';
 import {Container, Divider, Paper, Stack, Typography,} from '@mui/material';
 import LoginButtonTest from "../components/auth/LoginButtonTest.jsx";
 import LogoutButtonTest from "../components/auth/LogoutButtonTest.jsx";
+import ColorModeToggle from "../components/ui/ColorModeToggle.jsx";
+import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 
 export default function TestPlayground() {
+  useDocumentTitle("Playground de composants – FichesFlow");
+
   return (
     <Container maxWidth="md" sx={{py: 6}}>
       <Paper elevation={4} sx={{p: {xs: 2, sm: 4}}}>
@@ -32,6 +35,7 @@ function PlayArea() {
     <Stack spacing={2}>
       <LoginButtonTest/>
       <LogoutButtonTest/>
+      <ColorModeToggle />
     </Stack>
   );
 }

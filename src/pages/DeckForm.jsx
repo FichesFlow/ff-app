@@ -1,0 +1,255 @@
+import {useEffect, useRef, useState} from 'react'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
+import {useDocumentTitle} from '../hooks/useDocumentTitle.js'
+import MarkdownEditor from '../components/shared/MarkdownEditor.jsx'
+import DeckInfos from '../components/deck/DeckInfos.jsx'
+import OutlinedCard from '../components/flashcards/flashcard.jsx'
+import {toast, ToastContainer} from 'react-toastify';
+import {createDeck, fetchDeck, updateDeck} from "../api/deck.js";
+import {useNavigate, useParams} from 'react-router';
+import useTheme from "../hooks/useTheme.js";
+import CircularProgress from '@mui/material/CircularProgress';
+
+export default function DeckForm() {
+  const {id} = useParams();
+  const isEditMode = !!id;
+
+  useDocumentTitle(isEditMode ? 'Modifier un deck – FichesFlow' : 'Ajouter un deck – FichesFlow')
+
+  const [titre, setTitre] = useState('')
+  const [description, setDescription] = useState('')
+  const [language, setLanguage] = useState('fr')
+  const [visibility, setVisibility] = useState('private')
+  const [status, setStatus] = useState('draft')
+  const [isLoading, setIsLoading] = useState(isEditMode)
+
+  const markdownRef = useRef(null)
+  const [cards, setCards] = useState([])
+  const [editingId, setEditingId] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const currentTheme = useTheme();
+  const navigate = useNavigate();
+
+  /* Fetch deck data when in edit mode */
+  useEffect(() => {
+    if (isEditMode) {
+      const getDeck = async () => {
+        try {
+          setIsLoading(true);
+          const deckData = await fetchDeck(id);
+
+          setTitre(deckData.title || '');
+          setDescription(deckData.description || '');
+          setLanguage((deckData.language || 'FR').toLowerCase());
+          setVisibility(deckData.visibility || 'private');
+          setStatus(deckData.status || 'draft');
+
+          const transformedCards = deckData.cards.map(card => {
+            const frontSide = card.cardSides.find(side => side.side === "front");
+            return {
+              id: crypto.randomUUID(),
+              content: frontSide?.cardBlock?.content || '',
+              position: card.position
+            };
+          });
+
+          transformedCards.sort((a, b) => a.position - b.position);
+          setCards(transformedCards);
+        } catch (error) {
+          console.error("Failed to fetch deck:", error);
+          toast.error('Impossible de charger le deck', {
+            position: "bottom-right",
+            theme: currentTheme === 'dark' ? 'dark' : 'light'
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      getDeck();
+    }
+  }, [currentTheme, id, isEditMode]);
+
+  /* create or update card */
+  const handleSaveCard = () => {
+    const md = markdownRef.current?.getMarkdown()
+    if (!md || md.trim() === '') return
+
+    if (editingId) {
+      setCards((prev) => prev.map((c) => (c.id === editingId ? {...c, content: md} : c)))
+      setEditingId(null)
+    } else {
+      setCards((prev) => [...prev, {id: crypto.randomUUID(), content: md}])
+    }
+    markdownRef.current.setMarkdown('')
+  }
+
+  /* edit existing */
+  const handleEditCard = (id) => {
+    const card = cards.find((c) => c.id === id)
+    if (!card) return
+    markdownRef.current?.setMarkdown(card.content)
+    setEditingId(id)
+  }
+
+  /* delete */
+  const handleDeleteCard = (id) => {
+    setCards((prev) => prev.filter((c) => c.id !== id))
+    if (editingId === id) {
+      markdownRef.current?.setMarkdown('')
+      setEditingId(null)
+    }
+  }
+
+  /* send deck */
+  const handleSubmitDeck = async () => {
+    if (!titre.trim() || cards.length === 0) {
+      toast.error('Veuillez fournir un titre et au moins une fiche avant de soumettre le deck.', {
+        position: "bottom-right",
+        theme: currentTheme === 'dark' ? 'dark' : 'light'
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const payload = {
+      title: titre,
+      description,
+      language: language.toUpperCase(),
+      visibility,
+      status,
+      cards: cards.map((c, index) => ({
+        position: index,
+        cardSides: [
+          {
+            side: 'front',
+            cardBlock: {
+              content: c.content
+            }
+          }
+        ]
+      }))
+    }
+
+    if (isEditMode) {
+      payload.id = id
+    }
+
+    try {
+      let response;
+
+      if (isEditMode) {
+        response = await updateDeck(id, JSON.stringify(payload));
+        toast.success('Deck mis à jour avec succès !', {
+          position: "bottom-right",
+          theme: currentTheme === 'dark' ? 'dark' : 'light'
+        });
+      } else {
+        response = await createDeck(JSON.stringify(payload));
+        toast.success('Deck créé avec succès !', {
+          position: "bottom-right",
+          theme: currentTheme === 'dark' ? 'dark' : 'light'
+        });
+      }
+
+      if (response && (response.id || id)) {
+        navigate('/decks/' + (response.id || id));
+      } else {
+        throw new Error('Invalid response');
+      }
+    } catch (e) {
+      console.error(e)
+      toast.error(`Échec de ${isEditMode ? 'la mise à jour' : 'la création'} du deck. Veuillez réessayer.`, {
+        position: "bottom-right",
+        theme: currentTheme === 'dark' ? 'dark' : 'light'
+      });
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <Container maxWidth="lg"
+                 sx={{mt: 4, mb: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh'}}>
+        <CircularProgress/>
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
+      <DeckInfos
+        titre={titre}
+        setTitre={setTitre}
+        description={description}
+        setDescription={setDescription}
+        language={language}
+        setLanguage={setLanguage}
+        visibility={visibility}
+        setVisibility={setVisibility}
+        status={status}
+        setStatus={setStatus}
+      />
+
+      <Box bgcolor="#fff" p={2} borderRadius={1} boxShadow={3}>
+        <MarkdownEditor ref={markdownRef}/>
+      </Box>
+
+      <Stack direction="row" spacing={2} sx={{mt: 2, mb: 3}}>
+        <Button
+          variant="contained"
+          onClick={handleSaveCard}
+          disabled={isSubmitting}
+        >
+          {editingId ? 'Mettre à jour la fiche' : 'Ajouter une fiche'}
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleSubmitDeck}
+          color="secondary"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Envoi en cours...' : isEditMode ? 'Mettre à jour le deck' : 'Créer le deck'}
+        </Button>
+      </Stack>
+
+      <Grid container spacing={2}>
+        {cards.map((card) => (
+          <Grid item key={card.id}>
+            <OutlinedCard
+              sujet={titre || 'Titre de la fiche'}
+              description_recto={card.content}
+              description_verso="Description du verso de la fiche (optionnel)"
+            />
+            <Box mt={1} display="flex" gap={1} justifyContent="center">
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => handleEditCard(card.id)}
+                disabled={isSubmitting}
+              >
+                Modifier
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                color="error"
+                onClick={() => handleDeleteCard(card.id)}
+                disabled={isSubmitting}
+              >
+                Supprimer
+              </Button>
+            </Box>
+          </Grid>))}
+      </Grid>
+      <ToastContainer/>
+    </Container>
+  )
+}

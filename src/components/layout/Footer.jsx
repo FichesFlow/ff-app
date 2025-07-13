@@ -3,7 +3,7 @@ import {Link} from 'react-router';
 
 export default function Footer() {
   return (
-    <Box component="footer" sx={{bgcolor: 'background.paper', py: 4, mt: 'auto'}}>
+    <Box component="footer" sx={{py: 4, mt: 'auto'}}>
       <Container maxWidth="lg">
         <Stack
           direction={{xs: 'column', sm: 'row'}}
@@ -12,7 +12,6 @@ export default function Footer() {
           alignItems="center"
         >
           <FooterLink to="/legal/terms">Conditions générales</FooterLink>
-          <FooterLink to="/legal/privacy">Politique de confidentialité</FooterLink>
 
           <Divider orientation="vertical" flexItem sx={{display: {xs: 'none', sm: 'block'}}}/>
 
