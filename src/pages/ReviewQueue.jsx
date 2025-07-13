@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {Link as RouterLink} from 'react-router';
+import {Link as RouterLink, useNavigate} from 'react-router';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -19,22 +19,20 @@ import useTheme from "../hooks/useTheme.js";
 import {format} from 'date-fns';
 import {fr} from 'date-fns/locale';
 import {toast, ToastContainer} from 'react-toastify';
+import {useAuth} from "../context/AuthContext.jsx";
 
-// Helper function to translate priority
+// Helper functions remain unchanged
 const translatePriority = (priority) => {
   const translations = {
-    'light': 'Légère',
-    'medium': 'Moyenne',
+    'normal': 'Normale',
     'intense': 'Intense'
   };
   return translations[priority] || priority;
 };
 
-// Helper function to get priority color
 const getPriorityColor = (priority) => {
   const colors = {
-    'light': 'success',
-    'medium': 'info',
+    'normal': 'info',
     'intense': 'warning'
   };
   return colors[priority] || 'default';
@@ -48,8 +46,18 @@ export default function ReviewQueue() {
   const [error, setError] = useState(null);
   const [removing, setRemoving] = useState(null);
   const currentTheme = useTheme();
+  const {isAuthenticated} = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', {replace: true});
+    }
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchQueue = async () => {
       try {
         setLoading(true);
@@ -64,7 +72,7 @@ export default function ReviewQueue() {
     };
 
     fetchQueue();
-  }, []);
+  }, [isAuthenticated]);
 
   const handleRemoveFromQueue = async (queueItemId) => {
     if (removing) return;
@@ -81,6 +89,8 @@ export default function ReviewQueue() {
       setRemoving(null);
     }
   };
+
+  if (!isAuthenticated) return null;
 
   if (loading) {
     return (
