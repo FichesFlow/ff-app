@@ -8,10 +8,9 @@ import {useDocumentTitle} from '../hooks/useDocumentTitle.js'
 import MarkdownEditor from '../components/shared/MarkdownEditor.jsx'
 import DeckInfos from '../components/deck/DeckInfos.jsx'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
-import {toast, ToastContainer} from 'react-toastify';
+import {toast} from 'react-toastify';
 import {createDeck, fetchDeck, updateDeck} from "../api/deck.js";
 import {useNavigate, useParams} from 'react-router';
-import useTheme from "../hooks/useTheme.js";
 import CircularProgress from '@mui/material/CircularProgress';
 
 export default function DeckForm() {
@@ -32,7 +31,6 @@ export default function DeckForm() {
   const [editingId, setEditingId] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const currentTheme = useTheme();
   const navigate = useNavigate();
 
   /* Fetch deck data when in edit mode */
@@ -62,10 +60,7 @@ export default function DeckForm() {
           setCards(transformedCards);
         } catch (error) {
           console.error("Failed to fetch deck:", error);
-          toast.error('Impossible de charger le deck', {
-            position: "bottom-right",
-            theme: currentTheme === 'dark' ? 'dark' : 'light'
-          });
+          toast.error('Impossible de charger le deck');
         } finally {
           setIsLoading(false);
         }
@@ -73,7 +68,7 @@ export default function DeckForm() {
 
       getDeck();
     }
-  }, [currentTheme, id, isEditMode]);
+  }, [id, isEditMode]);
 
   /* create or update card */
   const handleSaveCard = () => {
@@ -109,10 +104,7 @@ export default function DeckForm() {
   /* send deck */
   const handleSubmitDeck = async () => {
     if (!titre.trim() || cards.length === 0) {
-      toast.error('Veuillez fournir un titre et au moins une fiche avant de soumettre le deck.', {
-        position: "bottom-right",
-        theme: currentTheme === 'dark' ? 'dark' : 'light'
-      })
+      toast.error('Veuillez fournir un titre et au moins une fiche avant de soumettre le deck.')
       return
     }
 
@@ -146,16 +138,10 @@ export default function DeckForm() {
 
       if (isEditMode) {
         response = await updateDeck(id, JSON.stringify(payload));
-        toast.success('Deck mis à jour avec succès !', {
-          position: "bottom-right",
-          theme: currentTheme === 'dark' ? 'dark' : 'light'
-        });
+        toast.success('Deck mis à jour avec succès !');
       } else {
         response = await createDeck(JSON.stringify(payload));
-        toast.success('Deck créé avec succès !', {
-          position: "bottom-right",
-          theme: currentTheme === 'dark' ? 'dark' : 'light'
-        });
+        toast.success('Deck créé avec succès !');
       }
 
       if (response && (response.id || id)) {
@@ -165,10 +151,7 @@ export default function DeckForm() {
       }
     } catch (e) {
       console.error(e)
-      toast.error(`Échec de ${isEditMode ? 'la mise à jour' : 'la création'} du deck. Veuillez réessayer.`, {
-        position: "bottom-right",
-        theme: currentTheme === 'dark' ? 'dark' : 'light'
-      });
+      toast.error(`Échec de ${isEditMode ? 'la mise à jour' : 'la création'} du deck. Veuillez réessayer.`);
     } finally {
       setIsSubmitting(false)
     }
@@ -249,7 +232,6 @@ export default function DeckForm() {
             </Box>
           </Grid>))}
       </Grid>
-      <ToastContainer/>
     </Container>
   )
 }

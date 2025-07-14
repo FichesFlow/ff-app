@@ -258,7 +258,7 @@ export default function ReviewSetup() {
             size="large"
             onClick={handleStartReview}
             startIcon={<PlayArrowIcon/>}
-            disabled={deck.card_count === 0}
+            disabled={deck.card_count === 0 || selectedCards.length === 0}
           >
             Commencer la révision
           </Button>
