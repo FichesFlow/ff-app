@@ -34,6 +34,7 @@ export default function ReviewSetup() {
   const [selectedCards, setSelectedCards] = useState([]);
   const [randomSelectionCount, setRandomSelectionCount] = useState(0);
   const [showCards, setShowCards] = useState(true);
+  const [eligibleCardsCount, setEligibleCardsCount] = useState(0);
 
   const handleRandomSelection = (count) => {
     setRandomSelectionCount(count);
@@ -72,6 +73,17 @@ export default function ReviewSetup() {
       error || !deck ? "Erreur - Préparation de la révision" :
         `Révision: ${deck.title} - Configuration`
   );
+
+  // calculate and cache eligible cards count
+  useEffect(() => {
+    if (!deck?.cards) return;
+
+    const eligibleCardsCount = mode === 'flashcard'
+      ? deck.cards.filter(card => card.cardSides.some(side => side.side === "back")).length
+      : deck.cards.length;
+
+    setEligibleCardsCount(eligibleCardsCount);
+  }, [deck?.cards, mode]);
 
   useEffect(() => {
     if (!isAuthenticated) navigate('/login', {replace: true});
@@ -192,17 +204,13 @@ export default function ReviewSetup() {
               onChange={(_, newValue) => setRandomSelectionCount(newValue)}
               onChangeCommitted={(_, newValue) => handleRandomSelection(newValue)}
               min={0}
-              max={mode === 'flashcard'
-                ? deck.cards?.filter(card => card.cardSides.some(side => side.side === "back"))?.length || 0
-                : deck.cards?.length || 10}
+              max={eligibleCardsCount || 0}
               valueLabelDisplay="auto"
               aria-labelledby="random-selection-slider"
               sx={{mx: 2}}
             />
             <Typography variant="body2" sx={{minWidth: '35px'}}>
-              {mode === 'flashcard'
-                ? deck.cards?.filter(card => card.cardSides.some(side => side.side === "back"))?.length || 0
-                : deck.cards?.length || 0}
+              {eligibleCardsCount || 0}
             </Typography>
           </Box>
           <Typography variant="caption" color="text.secondary">
