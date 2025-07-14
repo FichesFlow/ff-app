@@ -40,7 +40,12 @@ export default function ReviewSetup() {
     if (count === 0) return;
 
     if (deck.cards?.length) {
-      const shuffled = [...deck.cards].sort(() => 0.5 - Math.random());
+      // Filter cards that have backside if in flashcard mode
+      const eligibleCards = mode === 'flashcard'
+        ? deck.cards.filter(card => card.cardSides.some(side => side.side === "back"))
+        : deck.cards;
+
+      const shuffled = [...eligibleCards].sort(() => 0.5 - Math.random());
       setSelectedCards(shuffled.slice(0, count).map(card => card.id));
     }
   };
@@ -87,7 +92,16 @@ export default function ReviewSetup() {
         setCardCount(Math.min(10, deckData.card_count));
 
         if (deckData.cards?.length) {
-          setSelectedCards(deckData.cards.map(card => card.id));
+          if (mode === 'flashcard') {
+            // Only select cards that have a backside
+            const cardsWithBackside = deckData.cards.filter(card =>
+              card.cardSides.some(side => side.side === "back")
+            );
+            setSelectedCards(cardsWithBackside.map(card => card.id));
+          } else {
+            // Select all cards for other modes
+            setSelectedCards(deckData.cards.map(card => card.id));
+          }
         }
       } catch (err) {
         console.error('Error fetching deck:', err);
@@ -98,7 +112,7 @@ export default function ReviewSetup() {
     };
 
     getDeck();
-  }, [deckId, isAuthenticated]);
+  }, [deckId, isAuthenticated, mode]);
 
   if (!isAuthenticated) return null;
 
@@ -178,13 +192,17 @@ export default function ReviewSetup() {
               onChange={(_, newValue) => setRandomSelectionCount(newValue)}
               onChangeCommitted={(_, newValue) => handleRandomSelection(newValue)}
               min={0}
-              max={deck.cards?.length || 10}
+              max={mode === 'flashcard'
+                ? deck.cards?.filter(card => card.cardSides.some(side => side.side === "back"))?.length || 0
+                : deck.cards?.length || 10}
               valueLabelDisplay="auto"
               aria-labelledby="random-selection-slider"
               sx={{mx: 2}}
             />
             <Typography variant="body2" sx={{minWidth: '35px'}}>
-              {deck.cards?.length || 0}
+              {mode === 'flashcard'
+                ? deck.cards?.filter(card => card.cardSides.some(side => side.side === "back"))?.length || 0
+                : deck.cards?.length || 0}
             </Typography>
           </Box>
           <Typography variant="caption" color="text.secondary">
@@ -215,29 +233,51 @@ export default function ReviewSetup() {
                   const backSide = card.cardSides.find(side => side.side === "back");
                   const frontContent = frontSide?.cardBlock?.content || "";
                   const backContent = backSide?.cardBlock?.content || null;
+                  const hasBackContent = backContent !== null;
+                  const isSelectable = mode !== 'flashcard' || hasBackContent;
 
                   return (
                     <Grid item xs={12} sm={6} md={4} key={card.id || index}>
                       <Box
                         sx={{
-                          cursor: 'pointer',
+                          cursor: isSelectable ? 'pointer' : 'not-allowed',
                           border: selectedCards.includes(card.id) ? '2px solid' : '',
                           borderColor: selectedCards.includes(card.id) ? 'primary.main' : 'divider',
                           transition: 'all 0.2s',
                           height: '100%',
-                          '&:hover': {
+                          opacity: isSelectable ? 1 : 0.6,
+                          '&:hover': isSelectable ? {
                             borderColor: 'primary.main',
                             transform: 'translateY(-2px)'
+                          } : {}
+                        }}
+                        onClick={() => {
+                          if (isSelectable) {
+                            handleCardSelection(card.id);
                           }
                         }}
-                        onClick={() => handleCardSelection(card.id)}
                       >
                         <OutlinedCard
                           sujet={deck.title}
                           description_recto={frontContent}
                           description_verso={backContent}
-                          sx={{backgroundColor: selectedCards.includes(card.id) ? 'action.selected' : 'background.paper'}}
+                          sx={{
+                            backgroundColor: selectedCards.includes(card.id) ? 'action.selected' : 'background.paper'
+                          }}
                         />
+                        {mode === 'flashcard' && !hasBackContent && (
+                          <Box sx={{
+                            position: 'absolute',
+                            top: 0,
+                            right: 0,
+                            bgcolor: 'warning.light',
+                            color: 'warning.contrastText',
+                            px: 1,
+                            borderBottomLeftRadius: 4
+                          }}>
+                            Pas de verso
+                          </Box>
+                        )}
                       </Box>
                     </Grid>
                   );
