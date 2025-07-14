@@ -24,7 +24,7 @@ const schema = {
   },
 };
 // fonction permettant de visualiser le markdown en prenant en compte la source et appliquant le schema
-function MarkdownViewer({ source }) {
+export function MarkdownViewer({ source }) {
   return (
     <ReactMarkdown
       children={source}
@@ -42,6 +42,7 @@ export default function OutlinedCard({
   theme,
   description_recto,
   description_verso,
+  sx = {},
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const handleFlip = () => setIsFlipped((p) => !p); //Inverse l'état de la carte
@@ -71,6 +72,7 @@ export default function OutlinedCard({
             flexDirection: 'column',
             justifyContent: 'space-between',
             p: 2,
+            ...sx
           }}
         >
           <CardContent sx={{ p: 0 }}>

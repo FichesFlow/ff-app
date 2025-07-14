@@ -11,8 +11,7 @@ import SchoolIcon from '@mui/icons-material/School'
 import AddIcon from '@mui/icons-material/Add'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
 import {useAuth} from '../context/AuthContext'
-import {toast, ToastContainer} from 'react-toastify'
-import useTheme from "../hooks/useTheme.js";
+import {toast} from 'react-toastify'
 import {addToRevisionQueue} from "../api/review.js";
 import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 import {fetchDeck} from '../api/deck'
@@ -25,8 +24,6 @@ export default function DeckDetails() {
   const [error, setError] = useState(null)
   const {isAuthenticated} = useAuth()
   const [addingToQueue, setAddingToQueue] = useState(false)
-
-  const currentTheme = useTheme();
 
   useDocumentTitle(
     loading
@@ -206,12 +203,6 @@ export default function DeckDetails() {
           </Grid>
         </section>
       </main>
-      <ToastContainer
-        position="bottom-right"
-        role="alert"
-        aria-live="polite"
-        theme={currentTheme === 'dark' ? 'dark' : 'light'}
-      />
     </Container>
   )
 }

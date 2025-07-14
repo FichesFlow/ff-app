@@ -15,10 +15,9 @@ import SchoolIcon from '@mui/icons-material/School';
 import SearchIcon from '@mui/icons-material/Search';
 import {getMyReviewQueues, removeFromRevisionQueue} from '../api/review';
 import {useDocumentTitle} from '../hooks/useDocumentTitle';
-import useTheme from "../hooks/useTheme.js";
 import {format} from 'date-fns';
 import {fr} from 'date-fns/locale';
-import {toast, ToastContainer} from 'react-toastify';
+import {toast} from 'react-toastify';
 import {useAuth} from "../context/AuthContext.jsx";
 
 // Helper functions remain unchanged
@@ -45,7 +44,6 @@ export default function ReviewQueue() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [removing, setRemoving] = useState(null);
-  const currentTheme = useTheme();
   const {isAuthenticated} = useAuth();
   const navigate = useNavigate();
 
@@ -207,7 +205,6 @@ export default function ReviewQueue() {
           </Grid>
         ))}
       </Grid>
-      <ToastContainer position="bottom-right" theme={currentTheme === 'dark' ? 'dark' : 'light'}/>
     </Container>
   );
 }

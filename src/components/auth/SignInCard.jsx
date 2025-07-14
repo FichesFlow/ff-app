@@ -13,9 +13,8 @@ import {Link as RouterLink, useNavigate} from 'react-router';
 import {AuthContainer} from "../shared/AuthContainer.jsx";
 import {AuthCard} from "../shared/AuthCard.jsx";
 import ForgotPassword from "./ForgotPassword.jsx";
-import {toast, ToastContainer} from 'react-toastify';
+import {toast} from 'react-toastify';
 import {useAuth} from "../../context/AuthContext.jsx";
-import useTheme from '../../hooks/useTheme';
 
 export default function SignInCard() {
   const [emailError, setEmailError] = useState(false);
@@ -25,7 +24,6 @@ export default function SignInCard() {
   const [open, setOpen] = useState(false);
 
   const {login, loading} = useAuth();
-  const currentTheme = useTheme();
   const navigate = useNavigate();
 
   const handleClickOpen = () => {
@@ -71,16 +69,14 @@ export default function SignInCard() {
     const data = new FormData(event.currentTarget);
     try {
       await login(data.get('email'), data.get('password'));
-      toast.success('Connexion réussie!', {
-        position: "bottom-right",
-        theme: currentTheme === 'dark' ? 'dark' : 'light'
-      });
+      toast.success('Connexion réussie!');
       navigate("/");
-    } catch {
-      toast.error('Échec de la connexion. Vérifiez vos identifiants.', {
-        position: "bottom-right",
-        theme: currentTheme === 'dark' ? 'dark' : 'light'
-      });
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        toast.error('Identifiants incorrects. Veuillez vérifier votre email et mot de passe.');
+      } else {
+        toast.error('Erreur de connexion. Veuillez réessayer plus tard.');
+      }
     }
   };
 
@@ -173,7 +169,6 @@ export default function SignInCard() {
           </Typography>
         </Box>
       </AuthCard>
-      <ToastContainer/>
     </AuthContainer>
   );
 }
