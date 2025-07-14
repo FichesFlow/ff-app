@@ -17,6 +17,7 @@ import About from './pages/About.jsx'
 import MyDecks from './pages/MyDecks.jsx'
 import ReviewQueue from './pages/ReviewQueue.jsx';
 import ReviewSetup from './pages/ReviewSetup.jsx';
+import ReviewSession from './pages/ReviewSession.jsx';
 
 export const router = createBrowserRouter([{
   path: '/',
@@ -53,7 +54,7 @@ export const router = createBrowserRouter([{
       path: 'review',
       children: [
         {index: true, Component: ReviewSetup},
-        {path: 'session', Component: NotFound /* TODO: review session page */},
+        {path: 'session', Component: ReviewSession},
       ]
     },
 

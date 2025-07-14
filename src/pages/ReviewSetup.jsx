@@ -58,12 +58,17 @@ export default function ReviewSetup() {
   };
 
   const handleStartReview = () => {
+    // Only include selected cards with their full data structure
+    const selectedCardsData = deck.cards.filter(card =>
+      selectedCards.includes(card.id)
+    );
+
     navigate('/review/session', {
       state: {
+        mode: mode,
         deckId,
-        cardCount,
-        mode,
-        selectedCardIds: selectedCards.length > 0 ? selectedCards : null
+        deckTitle: deck.title,
+        selectedCards: selectedCardsData
       }
     });
   };

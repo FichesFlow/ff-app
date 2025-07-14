@@ -24,7 +24,7 @@ const schema = {
   },
 };
 // fonction permettant de visualiser le markdown en prenant en compte la source et appliquant le schema
-function MarkdownViewer({ source }) {
+export function MarkdownViewer({ source }) {
   return (
     <ReactMarkdown
       children={source}
