@@ -64,3 +64,68 @@ export async function getMyReviewQueues() {
   })
   return data
 }
+
+/**
+ * Start a review session.
+ * @param {Object} params - Parameters for the review session
+ * @param {string} params.deckId - Deck UUID to review
+ * @param {string} params.mode - Review mode (e.g., "flashcard")
+ * @param {Array<string>} params.cardIds - Array of card UUIDs to include in the session
+ * @returns {Promise<any>}
+ */
+export async function startReviewSession({deckId, mode, cardIds}) {
+  if (!deckId || !mode || !cardIds || !Array.isArray(cardIds)) {
+    throw new Error('startReviewSession: deckId, mode, and cardIds are required')
+  }
+
+  const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/review_sessions/start`, {
+    deck: deckId,
+    mode,
+    cards: cardIds
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+  })
+  return data
+}
+
+/**
+ * End a review session.
+ * @param sessionId
+ * @returns {Promise<any>}
+ */
+export async function endReviewSession(sessionId) {
+  if (!sessionId) throw new Error('endReviewSession: sessionId is required')
+
+  const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/review_sessions/${sessionId}/finish`, {}, {
+    headers: authHeaders(),
+  })
+  return data
+}
+
+/**
+ * Create a review event for a card in a session.
+ * @param sessionId
+ * @param cardId
+ * @param score
+ * @returns {Promise<any>}
+ */
+export async function createReviewEvent({sessionId, cardId, score}) {
+  if (!sessionId || !cardId || score === undefined) {
+    throw new Error('createReviewEvent: sessionId, cardId, and score are required')
+  }
+
+  const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/review_events`, {
+    session: `/api/review_sessions/${sessionId}`,
+    card: `/api/cards/${cardId}`,
+    score
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+  })
+  return data
+}

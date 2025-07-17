@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -13,11 +13,13 @@ import Typography from '@mui/material/Typography';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import {MarkdownViewer} from '../components/flashcards/flashcard';
+import {toast} from 'react-toastify';
+import {createReviewEvent, endReviewSession, startReviewSession} from '../api/review';
 
 export default function ReviewSession() {
   const location = useLocation();
   const navigate = useNavigate();
-  const {deckTitle, selectedCards} = location.state || {};
+  const {deckTitle, selectedCards, deckId, mode} = location.state || {};
 
   const [randomizedCards, setRandomizedCards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -25,29 +27,70 @@ export default function ReviewSession() {
   const [totalScore, setTotalScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [reviewSession, setReviewSession] = useState(null);
+  const hasInitialized = useRef(false);
 
-  // Randomize cards on component mount
+  // Randomize cards and start review session on component mount
   useEffect(() => {
-    if (selectedCards && selectedCards.length > 0) {
+    if (hasInitialized.current) return;
+
+    if (selectedCards && selectedCards.length > 0 && deckId) {
+      hasInitialized.current = true;
+
       // Create a copy and shuffle the array
       const shuffled = [...selectedCards].sort(() => Math.random() - 0.5);
       setRandomizedCards(shuffled);
-      setIsLoading(false);
+
+      // Start a review session
+      const cardIds = shuffled.map(card => card.id);
+      startReviewSession({
+        deckId: deckId,
+        mode: mode,
+        cardIds: cardIds
+      }).then((sessionData) => {
+        setReviewSession(sessionData);
+        setIsLoading(false);
+      }).catch(error => {
+        console.error('Failed to start review session:', error);
+        toast.warning('Failed to send review session data. Please try again later.');
+        setIsLoading(false);
+      });
     } else {
       setIsLoading(false);
     }
-  }, [selectedCards]);
+  }, [selectedCards, deckId, mode]);
 
-  const handleScoreSelection = useCallback((points) => {
+  const handleScoreSelection = useCallback(async (points) => {
     setTotalScore(prev => prev + points);
+
+    // Create a review event
+    if (reviewSession && randomizedCards[currentCardIndex]) {
+      try {
+        await createReviewEvent({
+          sessionId: reviewSession.id,
+          cardId: randomizedCards[currentCardIndex].id,
+          score: points
+        });
+      } catch (error) {
+        console.error('Failed to create review event:', error);
+      }
+    }
 
     if (currentCardIndex < randomizedCards.length - 1) {
       setCurrentCardIndex(prev => prev + 1);
       setShowAnswer(false);
     } else {
+      // End the review session
+      if (reviewSession) {
+        try {
+          await endReviewSession(reviewSession.id);
+        } catch (error) {
+          console.error('Failed to end review session:', error);
+        }
+      }
       setIsFinished(true);
     }
-  }, [randomizedCards.length, currentCardIndex]);
+  }, [randomizedCards, currentCardIndex, reviewSession]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.code === 'Space' && !showAnswer) {
