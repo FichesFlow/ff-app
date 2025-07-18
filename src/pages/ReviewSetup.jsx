@@ -9,6 +9,7 @@ import {ReviewSetupError, ReviewSetupLoading} from '../components/review/setup/R
 import ModeSelector from '../components/review/setup/ModeSelector';
 import CardSourceSelector from '../components/review/setup/CardSourceSelector';
 import SrsControls from '../components/review/setup/SrsControls';
+import ManualSelectionControls from '../components/review/setup/ManualSelectionControls';
 import CardSelector from '../components/review/setup/CardSelector';
 import StartReviewButton from '../components/review/setup/StartReviewButton';
 
