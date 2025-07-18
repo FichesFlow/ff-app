@@ -28,6 +28,7 @@ export default function ReviewSession() {
   const [isFinished, setIsFinished] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [reviewSession, setReviewSession] = useState(null);
+  const [hasApiError, setHasApiError] = useState(false);
   const hasInitialized = useRef(false);
 
   // Randomize cards and start review session on component mount
@@ -92,17 +93,17 @@ export default function ReviewSession() {
   const handleScoreSelection = useCallback(async (points) => {
     setTotalScore(prev => prev + points);
 
-    // Create a review event
-    if (reviewSession && cards[currentCardIndex]) {
-      try {
-        await createReviewEvent({
-          sessionId: reviewSession.id,
-          cardId: cards[currentCardIndex].id,
-          score: points
-        });
-      } catch (error) {
+    // Create a review event (non-blocking)
+    if (reviewSession && cards[currentCardIndex] && !hasApiError) {
+      createReviewEvent({
+        sessionId: reviewSession.id,
+        cardId: cards[currentCardIndex].id,
+        score: points
+      }).catch((error) => {
         console.error('Failed to create review event:', error);
-      }
+        setHasApiError(true);
+        toast.warning("La session n'a pas pu être sauvegardée et ne sera pas enregistrée. Les données pourraient être perdues.");
+      });
     }
 
     if (currentCardIndex < cards.length - 1) {
@@ -110,16 +111,19 @@ export default function ReviewSession() {
       setShowAnswer(false);
     } else {
       // End the review session
-      if (reviewSession) {
+      if (reviewSession && !hasApiError) {
         try {
           await endReviewSession(reviewSession.id);
         } catch (error) {
           console.error('Failed to end review session:', error);
+          toast.error('Impossible de terminer la session de révision correctement.');
         }
+      } else if (hasApiError) {
+        toast.warning("La session de révision n'a pas pu être terminée en raison d'erreurs précédentes.");
       }
       setIsFinished(true);
     }
-  }, [cards, currentCardIndex, reviewSession]);
+  }, [cards, currentCardIndex, reviewSession, hasApiError]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.code === 'Space' && !showAnswer) {
