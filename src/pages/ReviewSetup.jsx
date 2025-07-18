@@ -24,7 +24,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Badge from '@mui/material/Badge';
-import Chip from '@mui/material/Chip';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 export default function ReviewSetup() {
   const [searchParams] = useSearchParams();
@@ -217,7 +217,7 @@ export default function ReviewSetup() {
         </FormControl>
 
         <FormControl component="fieldset" sx={{mb: 4, width: '100%'}}>
-          <FormLabel component="legend">Source des cartes</FormLabel>
+          <FormLabel component="legend">Mode de sélection des cartes</FormLabel>
           <RadioGroup
             value={cardSource}
             onChange={(e) => setCardSource(e.target.value)}
@@ -225,41 +225,39 @@ export default function ReviewSetup() {
           >
             <FormControlLabel
               value="due"
-              control={<Radio />}
+              disabled={dueCardsCount === 0}
+              control={<Radio/>}
               label={
-                <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-                  <span>Cartes dues</span>
-                  <Badge badgeContent={dueCardsCount} color="primary" />
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                  <span>Révision guidée (SRS)</span>
+
+                  <Tooltip
+                    title="Cartes dues aujourd’hui complétées par des cartes nouvelles si nécessaire."
+                    arrow
+                  >
+                    <InfoOutlinedIcon sx={{fontSize: 18}}/>
+                  </Tooltip>
+
+                  <Badge badgeContent={dueCardsCount} color="primary" sx={{ml: 1}}/>
                 </Box>
               }
-              disabled={dueCardsCount === 0}
             />
             <FormControlLabel
               value="manual"
-              control={<Radio />}
-              label="Sélection manuelle"
+              control={<Radio/>}
+              label={
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                  <span>Révision libre</span>
+                  <Tooltip
+                    title="Vous choisissez les cartes ; cette session n’influe pas sur votre planning SRS."
+                    arrow
+                  >
+                    <InfoOutlinedIcon sx={{fontSize: 18}}/>
+                  </Tooltip>
+                </Box>
+              }
             />
           </RadioGroup>
-
-          {cardSource === 'due' && dueCardsCount > 0 && (
-            <Box sx={{mt: 2}}>
-              <Chip
-                label={`${dueCardsCount} cartes sont à revoir aujourd'hui`}
-                color="info"
-                variant="outlined"
-              />
-            </Box>
-          )}
-
-          {dueCardsCount === 0 && (
-            <Box sx={{mt: 2}}>
-              <Chip
-                label="🎉 Aucune carte due aujourd'hui."
-                color="success"
-                variant="outlined"
-              />
-            </Box>
-          )}
         </FormControl>
 
         <Box sx={{mt: 2, mb: 4}}>
@@ -449,9 +447,9 @@ export default function ReviewSetup() {
 
           <FormLabel id="card-count-label" sx={{mt: 3}}>
             Nombre de fiches à réviser: {cardSource === 'due' ?
-              (randomSelectionCount > 0 ? Math.min(randomSelectionCount, dueCardsCount) : dueCardsCount) :
-              selectedCards.length
-            }
+            (randomSelectionCount > 0 ? Math.min(randomSelectionCount, dueCardsCount) : dueCardsCount) :
+            selectedCards.length
+          }
           </FormLabel>
         </FormControl>
 
