@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import {useNavigate, useSearchParams} from 'react-router';
 import {useDocumentTitle} from '../hooks/useDocumentTitle';
 import {useAuth} from '../context/AuthContext';
-import {fetchDeck} from '../api/deck';
+import {fetchDeckWithStats} from '../api/deck';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -119,52 +119,19 @@ export default function ReviewSetup() {
     setEligibleCardsCount(eligibleCardsCount);
   }, [deck?.cards, mode]);
 
-  // Add effect to calculate unseen cards count
-  useEffect(() => {
-    if (!deck?.cards) return;
-
-    // TODO: Replace with actual unseen cards logic based on review history
-    // For now, simulate unseen cards (cards never reviewed)
-    const simulatedUnseenCount = Math.max(0, deck.cards.length - Math.floor(deck.cards.length * 0.3));
-    setUnseenCount(simulatedUnseenCount);
-  }, [deck?.cards]);
-
-  // Add effect to calculate due cards count
-  useEffect(() => {
-    if (!deck?.cards) return;
-
-    // TODO: Replace with actual due cards logic based on spaced repetition
-    // For now, simulate some due cards
-    const simulatedDueCount = Math.min(12, deck.cards.length);
-    setDueCardsCount(simulatedDueCount);
-
-    // Set initial values
-    const simulatedUnseenCount = Math.max(0, deck.cards.length - Math.floor(deck.cards.length * 0.3));
-    setDueLimit(simulatedDueCount);
-    setNewCount(Math.min(5, simulatedUnseenCount));
-
-    // If no due cards, force manual selection
-    if (simulatedDueCount === 0) {
-      setCardSource('manual');
-    }
-  }, [deck?.cards, unseenCount]);
-
-  useEffect(() => {
-    if (!isAuthenticated) navigate('/login', {replace: true});
-  }, [isAuthenticated, navigate]);
-
-  useEffect(() => {
-    if (isAuthenticated && !deckId) navigate('/decks', {replace: true});
-  }, [deckId, isAuthenticated, navigate]);
-
+  // Remove simulated counts, use real stats from API
   useEffect(() => {
     if (!isAuthenticated || !deckId) return;
 
     const getDeck = async () => {
       try {
         setLoading(true);
-        const deckData = await fetchDeck(deckId);
+        const deckData = await fetchDeckWithStats(deckId);
         setDeck(deckData);
+
+        // Use review stats from API response
+        setDueCardsCount(deckData.review?.dueCount || 0);
+        setUnseenCount(deckData.review?.unseenCount || 0);
 
         if (deckData.cards?.length) {
           if (mode === 'flashcard') {
@@ -188,6 +155,23 @@ export default function ReviewSetup() {
 
     getDeck();
   }, [deckId, isAuthenticated, mode]);
+
+  // Set initial values for dueLimit and newCount when stats change
+  useEffect(() => {
+    setDueLimit(dueCardsCount);
+    setNewCount(Math.min(5, unseenCount));
+    if (dueCardsCount === 0) {
+      setCardSource('manual');
+    }
+  }, [dueCardsCount, unseenCount]);
+
+  useEffect(() => {
+    if (!isAuthenticated) navigate('/login', {replace: true});
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (isAuthenticated && !deckId) navigate('/decks', {replace: true});
+  }, [deckId, isAuthenticated, navigate]);
 
   if (!isAuthenticated) return null;
 
@@ -263,7 +247,7 @@ export default function ReviewSetup() {
           >
             <FormControlLabel
               value="due"
-              disabled={dueCardsCount === 0}
+              disabled={(dueCardsCount + unseenCount) === 0}
               control={<Radio/>}
               label={
                 <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
@@ -408,7 +392,7 @@ export default function ReviewSetup() {
                 {showCards ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
               </IconButton>
             )}
-            {cardSource === 'due' && dueCardsCount > 0 && (
+            {cardSource === 'due' && (
               <IconButton
                 size="small"
                 onClick={() => setShowCards(prev => !prev)}
@@ -481,14 +465,47 @@ export default function ReviewSetup() {
             </Box>
           )}
 
-          {cardSource === 'due' && dueCardsCount > 0 && showCards && (
+          {cardSource === 'due' && showCards && (
             <Box sx={{mb: 3}}>
               <Grid container spacing={2}>
-                {deck.cards?.slice(0, dueCardsCount).map((card, index) => {
+                {deck.cards?.map((card, index) => {
                   const frontSide = card.cardSides.find(side => side.side === "front");
                   const backSide = card.cardSides.find(side => side.side === "back");
                   const frontContent = frontSide?.cardBlock?.content || "";
                   const backContent = backSide?.cardBlock?.content || null;
+
+                  // Determine if this card is due (first dueCardsCount cards with reviewStatus 'due')
+                  // and if this card is to be learned (first newCount unseen cards)
+                  const isDue = index < dueCardsCount;
+                  // Find all unseen cards indices
+                  const unseenIndices = deck.cards
+                    .map((c, i) => c.reviewStatus === 'never_seen' ? i : null)
+                    .filter(i => i !== null);
+                  const isLearn = !isDue && card.reviewStatus === 'never_seen' &&
+                    unseenIndices.indexOf(index) > -1 &&
+                    unseenIndices.indexOf(index) < newCount;
+
+                  let borderColor = 'divider';
+                  let bgColor = 'background.paper';
+                  let label = null;
+                  let labelColor = {};
+                  if (isDue) {
+                    borderColor = 'info.main';
+                    bgColor = 'info.light';
+                    label = 'Due';
+                    labelColor = {
+                      bgcolor: 'info.main',
+                      color: 'info.contrastText'
+                    };
+                  } else if (isLearn) {
+                    borderColor = 'success.main';
+                    bgColor = 'success.light';
+                    label = 'Learn';
+                    labelColor = {
+                      bgcolor: 'success.main',
+                      color: 'success.contrastText'
+                    };
+                  }
 
                   return (
                     <Grid item xs={12} sm={6} md={4} key={card.id || index}>
@@ -496,10 +513,12 @@ export default function ReviewSetup() {
                         sx={{
                           cursor: 'default',
                           border: '2px solid',
-                          borderColor: 'info.main',
+                          borderColor,
                           transition: 'all 0.2s',
                           height: '100%',
-                          position: 'relative'
+                          position: 'relative',
+                          backgroundColor: bgColor,
+                          opacity: 0.8
                         }}
                       >
                         <OutlinedCard
@@ -507,22 +526,22 @@ export default function ReviewSetup() {
                           description_recto={frontContent}
                           description_verso={backContent}
                           sx={{
-                            backgroundColor: 'info.light',
-                            opacity: 0.8
+                            backgroundColor: bgColor
                           }}
                         />
-                        <Box sx={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                          bgcolor: 'info.main',
-                          color: 'info.contrastText',
-                          px: 1,
-                          borderBottomLeftRadius: 4,
-                          fontSize: '0.75rem'
-                        }}>
-                          Due
-                        </Box>
+                        {label && (
+                          <Box sx={{
+                            position: 'absolute',
+                            top: 0,
+                            right: 0,
+                            px: 1,
+                            borderBottomLeftRadius: 4,
+                            fontSize: '0.75rem',
+                            ...labelColor
+                          }}>
+                            {label}
+                          </Box>
+                        )}
                       </Box>
                     </Grid>
                   );
@@ -531,18 +550,11 @@ export default function ReviewSetup() {
             </Box>
           )}
 
-          {cardSource === 'due' && dueCardsCount === 0 && (
+          {cardSource === 'due' && !showCards && (
             <Box sx={{mb: 3}}>
               <Typography variant="body2" color="text.secondary">
-                🎉 Aucune carte due aujourd'hui.
-              </Typography>
-            </Box>
-          )}
-
-          {cardSource === 'due' && dueCardsCount > 0 && !showCards && (
-            <Box sx={{mb: 3}}>
-              <Typography variant="body2" color="text.secondary">
-                Les cartes dues seront automatiquement sélectionnées selon l'algorithme de répétition espacée.
+                Les cartes dues et/ou à apprendre seront automatiquement sélectionnées selon l'algorithme de répétition
+                espacée.
               </Typography>
             </Box>
           )}
