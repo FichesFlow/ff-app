@@ -160,9 +160,6 @@ export default function ReviewSetup() {
   useEffect(() => {
     setDueLimit(dueCardsCount);
     setNewCount(Math.min(5, unseenCount));
-    if (dueCardsCount === 0) {
-      setCardSource('manual');
-    }
   }, [dueCardsCount, unseenCount]);
 
   useEffect(() => {
@@ -485,6 +482,9 @@ export default function ReviewSetup() {
                     unseenIndices.indexOf(index) > -1 &&
                     unseenIndices.indexOf(index) < newCount;
 
+                  // Add: isNotDueYet for special border
+                  const isNotDueYet = card.reviewStatus === 'not_due_yet';
+
                   let borderColor = 'divider';
                   let bgColor = 'background.paper';
                   let label = null;
@@ -504,6 +504,14 @@ export default function ReviewSetup() {
                     labelColor = {
                       bgcolor: 'success.main',
                       color: 'success.contrastText'
+                    };
+                  } else if (isNotDueYet) {
+                    borderColor = 'warning.main'; // Special color for not_due_yet
+                    bgColor = 'warning.light';
+                    label = 'À venir';
+                    labelColor = {
+                      bgcolor: 'warning.main',
+                      color: 'warning.contrastText'
                     };
                   }
 

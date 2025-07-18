@@ -19,9 +19,9 @@ import {createReviewEvent, endReviewSession, startReviewSession} from '../api/re
 export default function ReviewSession() {
   const location = useLocation();
   const navigate = useNavigate();
-  const {deckTitle, selectedCards, deckId, mode} = location.state || {};
+  const {deckTitle, selectedCards, deckId, mode, cardSource, dueLimit, newCount} = location.state || {};
 
-  const [randomizedCards, setRandomizedCards] = useState([]);
+  const [cards, setCards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
@@ -33,42 +33,71 @@ export default function ReviewSession() {
   // Randomize cards and start review session on component mount
   useEffect(() => {
     if (hasInitialized.current) return;
+    hasInitialized.current = true;
 
-    if (selectedCards && selectedCards.length > 0 && deckId) {
-      hasInitialized.current = true;
+    async function initSession() {
+      try {
+        setIsLoading(true);
 
-      // Create a copy and shuffle the array
-      const shuffled = [...selectedCards].sort(() => Math.random() - 0.5);
-      setRandomizedCards(shuffled);
+        if (cardSource === 'due') {
+          // For SRS mode, we don't have the cards yet - need to get them from the API
+          const sessionData = await startReviewSession({
+            deckId,
+            mode,
+            dueLimit,
+            newCount
+          });
 
-      // Start a review session
-      const cardIds = shuffled.map(card => card.id);
-      startReviewSession({
-        deckId: deckId,
-        mode: mode,
-        cardIds: cardIds
-      }).then((sessionData) => {
-        setReviewSession(sessionData);
-        setIsLoading(false);
-      }).catch(error => {
+          setReviewSession(sessionData);
+          // Use cards returned from API
+          if (sessionData.cards && sessionData.cards.length > 0) {
+            setCards(sessionData.cards);
+          } else {
+            toast.error("Aucune carte à réviser n'a été retournée par le serveur.");
+          }
+        } else {
+          // For manual mode, we already have the cards
+          if (selectedCards && selectedCards.length > 0) {
+            // Create a copy and shuffle the array
+            const shuffled = [...selectedCards].sort(() => Math.random() - 0.5);
+            setCards(shuffled);
+
+            // Start a review session with card IDs
+            const cardIds = shuffled.map(card => card.id);
+            const sessionData = await startReviewSession({
+              deckId,
+              mode,
+              cardIds
+            });
+            setReviewSession(sessionData);
+          } else {
+            toast.error('Aucune carte sélectionnée pour la révision.');
+          }
+        }
+      } catch (error) {
         console.error('Failed to start review session:', error);
-        toast.warning('Failed to send review session data. Please try again later.');
+        toast.error('Impossible de démarrer la session de révision. Veuillez réessayer plus tard.');
+      } finally {
         setIsLoading(false);
-      });
+      }
+    }
+
+    if (deckId && mode) {
+      initSession();
     } else {
       setIsLoading(false);
     }
-  }, [selectedCards, deckId, mode]);
+  }, [deckId, mode, selectedCards, cardSource, dueLimit, newCount]);
 
   const handleScoreSelection = useCallback(async (points) => {
     setTotalScore(prev => prev + points);
 
     // Create a review event
-    if (reviewSession && randomizedCards[currentCardIndex]) {
+    if (reviewSession && cards[currentCardIndex]) {
       try {
         await createReviewEvent({
           sessionId: reviewSession.id,
-          cardId: randomizedCards[currentCardIndex].id,
+          cardId: cards[currentCardIndex].id,
           score: points
         });
       } catch (error) {
@@ -76,7 +105,7 @@ export default function ReviewSession() {
       }
     }
 
-    if (currentCardIndex < randomizedCards.length - 1) {
+    if (currentCardIndex < cards.length - 1) {
       setCurrentCardIndex(prev => prev + 1);
       setShowAnswer(false);
     } else {
@@ -90,7 +119,7 @@ export default function ReviewSession() {
       }
       setIsFinished(true);
     }
-  }, [randomizedCards, currentCardIndex, reviewSession]);
+  }, [cards, currentCardIndex, reviewSession]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.code === 'Space' && !showAnswer) {
@@ -120,7 +149,7 @@ export default function ReviewSession() {
     navigate('/review-queue');
   };
 
-  if (!randomizedCards || randomizedCards.length === 0) {
+  if (!cards || cards.length === 0) {
     if (isLoading) {
       return (
         <Container maxWidth="md" sx={{mt: 4}}>
@@ -138,14 +167,22 @@ export default function ReviewSession() {
           Session de révision invalide
         </Typography>
         <Typography>
-          Aucun paramètre de révision n'a été fourni. Veuillez configurer une session de révision.
+          Aucune carte n'a été trouvée pour cette session. Veuillez configurer une session de révision.
         </Typography>
+        <Button
+          variant="contained"
+          onClick={() => navigate(`/review?deck=${deckId}`)}
+          startIcon={<ArrowBackIcon/>}
+          sx={{mt: 2}}
+        >
+          Retour à la configuration
+        </Button>
       </Container>
     );
   }
 
   if (isFinished) {
-    const maxScore = randomizedCards.length * 5;
+    const maxScore = cards.length * 5;
     const scorePercentage = (totalScore / maxScore) * 100;
 
     return (
@@ -159,7 +196,7 @@ export default function ReviewSession() {
             Score: {totalScore} / {maxScore} ({Math.round(scorePercentage)}%)
           </Typography>
           <Typography color="text.secondary" sx={{mb: 3}}>
-            Vous avez révisé {randomizedCards.length} cartes.
+            Vous avez révisé {cards.length} cartes.
           </Typography>
           <Button
             variant="contained"
@@ -173,12 +210,12 @@ export default function ReviewSession() {
     );
   }
 
-  const currentCard = randomizedCards[currentCardIndex];
+  const currentCard = cards[currentCardIndex];
   const frontSide = currentCard?.cardSides.find(side => side.side === "front");
   const backSide = currentCard?.cardSides.find(side => side.side === "back");
   const frontContent = frontSide?.cardBlock?.content || "Pas de contenu";
   const backContent = backSide?.cardBlock?.content || "Pas de contenu";
-  const progress = ((currentCardIndex) / randomizedCards.length) * 100;
+  const progress = ((currentCardIndex) / cards.length) * 100;
 
   return (
     <Container maxWidth="md" sx={{mt: 4}}>
@@ -187,7 +224,7 @@ export default function ReviewSession() {
           {deckTitle || "Session de révision"}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Carte {currentCardIndex + 1} / {randomizedCards.length}
+          Carte {currentCardIndex + 1} / {cards.length}
         </Typography>
       </Box>
 
