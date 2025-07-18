@@ -20,6 +20,11 @@ import Slider from '@mui/material/Slider';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import IconButton from '@mui/material/IconButton';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Badge from '@mui/material/Badge';
+import Chip from '@mui/material/Chip';
 
 export default function ReviewSetup() {
   const [searchParams] = useSearchParams();
@@ -30,11 +35,12 @@ export default function ReviewSetup() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mode, setMode] = useState('flashcard');
-  const [cardCount, setCardCount] = useState(10);
   const [selectedCards, setSelectedCards] = useState([]);
   const [randomSelectionCount, setRandomSelectionCount] = useState(0);
   const [showCards, setShowCards] = useState(true);
   const [eligibleCardsCount, setEligibleCardsCount] = useState(0);
+  const [cardSource, setCardSource] = useState('due');
+  const [dueCardsCount, setDueCardsCount] = useState(0);
 
   const handleRandomSelection = (count) => {
     setRandomSelectionCount(count);
@@ -90,6 +96,21 @@ export default function ReviewSetup() {
     setEligibleCardsCount(eligibleCardsCount);
   }, [deck?.cards, mode]);
 
+  // Add effect to calculate due cards count
+  useEffect(() => {
+    if (!deck?.cards) return;
+
+    // TODO: Replace with actual due cards logic based on spaced repetition
+    // For now, simulate some due cards
+    const simulatedDueCount = Math.min(12, deck.cards.length);
+    setDueCardsCount(simulatedDueCount);
+
+    // If no due cards, force manual selection
+    if (simulatedDueCount === 0) {
+      setCardSource('manual');
+    }
+  }, [deck?.cards]);
+
   useEffect(() => {
     if (!isAuthenticated) navigate('/login', {replace: true});
   }, [isAuthenticated, navigate]);
@@ -106,7 +127,6 @@ export default function ReviewSetup() {
         setLoading(true);
         const deckData = await fetchDeck(deckId);
         setDeck(deckData);
-        setCardCount(Math.min(10, deckData.card_count));
 
         if (deckData.cards?.length) {
           if (mode === 'flashcard') {
@@ -196,9 +216,55 @@ export default function ReviewSetup() {
           </Box>
         </FormControl>
 
+        <FormControl component="fieldset" sx={{mb: 4, width: '100%'}}>
+          <FormLabel component="legend">Source des cartes</FormLabel>
+          <RadioGroup
+            value={cardSource}
+            onChange={(e) => setCardSource(e.target.value)}
+            sx={{mt: 1}}
+          >
+            <FormControlLabel
+              value="due"
+              control={<Radio />}
+              label={
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                  <span>Cartes dues</span>
+                  <Badge badgeContent={dueCardsCount} color="primary" />
+                </Box>
+              }
+              disabled={dueCardsCount === 0}
+            />
+            <FormControlLabel
+              value="manual"
+              control={<Radio />}
+              label="Sélection manuelle"
+            />
+          </RadioGroup>
+
+          {cardSource === 'due' && dueCardsCount > 0 && (
+            <Box sx={{mt: 2}}>
+              <Chip
+                label={`${dueCardsCount} cartes sont à revoir aujourd'hui`}
+                color="info"
+                variant="outlined"
+              />
+            </Box>
+          )}
+
+          {dueCardsCount === 0 && (
+            <Box sx={{mt: 2}}>
+              <Chip
+                label="🎉 Aucune carte due aujourd'hui."
+                color="success"
+                variant="outlined"
+              />
+            </Box>
+          )}
+        </FormControl>
+
         <Box sx={{mt: 2, mb: 4}}>
           <Typography variant="body2" gutterBottom>
-            Sélection aléatoire de cartes
+            {cardSource === 'due' ? 'Nombre maximum de cartes dues' : 'Sélection aléatoire de cartes'}
           </Typography>
           <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
             <Typography variant="body2" sx={{minWidth: '20px'}}>
@@ -209,36 +275,52 @@ export default function ReviewSetup() {
               onChange={(_, newValue) => setRandomSelectionCount(newValue)}
               onChangeCommitted={(_, newValue) => handleRandomSelection(newValue)}
               min={0}
-              max={eligibleCardsCount || 0}
+              max={cardSource === 'due' ? dueCardsCount : (eligibleCardsCount || 0)}
               valueLabelDisplay="auto"
               aria-labelledby="random-selection-slider"
               sx={{mx: 2}}
+              disabled={cardSource === 'due' && dueCardsCount === 0}
             />
             <Typography variant="body2" sx={{minWidth: '35px'}}>
-              {eligibleCardsCount || 0}
+              {cardSource === 'due' ? dueCardsCount : (eligibleCardsCount || 0)}
             </Typography>
           </Box>
           <Typography variant="caption" color="text.secondary">
-            Déplacez le curseur pour sélectionner aléatoirement un nombre de fiches (0 = sélection manuelle)
+            {cardSource === 'due'
+              ? 'Limitez le nombre de cartes dues à réviser (0 = toutes les cartes dues)'
+              : 'Déplacez le curseur pour sélectionner aléatoirement un nombre de fiches (0 = sélection manuelle)'
+            }
           </Typography>
         </Box>
 
         <FormControl sx={{mb: 4, width: '100%'}}>
           <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
             <FormLabel component="legend">
-              Sélectionnez les fiches à réviser
+              {cardSource === 'due' ? 'Cartes à réviser' : 'Sélectionnez les fiches à réviser'}
             </FormLabel>
-            <IconButton
-              size="small"
-              onClick={() => setShowCards(prev => !prev)}
-              aria-label={showCards ? "Masquer les fiches" : "Afficher les fiches"}
-              sx={{ml: 1}}
-            >
-              {showCards ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-            </IconButton>
+            {cardSource === 'manual' && (
+              <IconButton
+                size="small"
+                onClick={() => setShowCards(prev => !prev)}
+                aria-label={showCards ? "Masquer les fiches" : "Afficher les fiches"}
+                sx={{ml: 1}}
+              >
+                {showCards ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+              </IconButton>
+            )}
+            {cardSource === 'due' && dueCardsCount > 0 && (
+              <IconButton
+                size="small"
+                onClick={() => setShowCards(prev => !prev)}
+                aria-label={showCards ? "Masquer les fiches" : "Afficher les fiches"}
+                sx={{ml: 1}}
+              >
+                {showCards ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+              </IconButton>
+            )}
           </Box>
 
-          {showCards && (
+          {cardSource === 'manual' && showCards && (
             <Box sx={{mb: 3}}>
               <Grid container spacing={2}>
                 {deck.cards?.map((card, index) => {
@@ -299,8 +381,77 @@ export default function ReviewSetup() {
             </Box>
           )}
 
+          {cardSource === 'due' && dueCardsCount > 0 && showCards && (
+            <Box sx={{mb: 3}}>
+              <Grid container spacing={2}>
+                {deck.cards?.slice(0, dueCardsCount).map((card, index) => {
+                  const frontSide = card.cardSides.find(side => side.side === "front");
+                  const backSide = card.cardSides.find(side => side.side === "back");
+                  const frontContent = frontSide?.cardBlock?.content || "";
+                  const backContent = backSide?.cardBlock?.content || null;
+
+                  return (
+                    <Grid item xs={12} sm={6} md={4} key={card.id || index}>
+                      <Box
+                        sx={{
+                          cursor: 'default',
+                          border: '2px solid',
+                          borderColor: 'info.main',
+                          transition: 'all 0.2s',
+                          height: '100%',
+                          position: 'relative'
+                        }}
+                      >
+                        <OutlinedCard
+                          sujet={deck.title}
+                          description_recto={frontContent}
+                          description_verso={backContent}
+                          sx={{
+                            backgroundColor: 'info.light',
+                            opacity: 0.8
+                          }}
+                        />
+                        <Box sx={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          bgcolor: 'info.main',
+                          color: 'info.contrastText',
+                          px: 1,
+                          borderBottomLeftRadius: 4,
+                          fontSize: '0.75rem'
+                        }}>
+                          Due
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+
+          {cardSource === 'due' && dueCardsCount === 0 && (
+            <Box sx={{mb: 3}}>
+              <Typography variant="body2" color="text.secondary">
+                🎉 Aucune carte due aujourd'hui.
+              </Typography>
+            </Box>
+          )}
+
+          {cardSource === 'due' && dueCardsCount > 0 && !showCards && (
+            <Box sx={{mb: 3}}>
+              <Typography variant="body2" color="text.secondary">
+                Les cartes dues seront automatiquement sélectionnées selon l'algorithme de répétition espacée.
+              </Typography>
+            </Box>
+          )}
+
           <FormLabel id="card-count-label" sx={{mt: 3}}>
-            Nombre de fiches à réviser: {selectedCards.length}
+            Nombre de fiches à réviser: {cardSource === 'due' ?
+              (randomSelectionCount > 0 ? Math.min(randomSelectionCount, dueCardsCount) : dueCardsCount) :
+              selectedCards.length
+            }
           </FormLabel>
         </FormControl>
 
@@ -311,7 +462,11 @@ export default function ReviewSetup() {
             size="large"
             onClick={handleStartReview}
             startIcon={<PlayArrowIcon/>}
-            disabled={deck.card_count === 0 || selectedCards.length === 0}
+            disabled={
+              deck.card_count === 0 ||
+              (cardSource === 'manual' && selectedCards.length === 0) ||
+              (cardSource === 'due' && dueCardsCount === 0)
+            }
           >
             Commencer la révision
           </Button>
