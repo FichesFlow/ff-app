@@ -70,19 +70,36 @@ export async function getMyReviewQueues() {
  * @param {Object} params - Parameters for the review session
  * @param {string} params.deckId - Deck UUID to review
  * @param {string} params.mode - Review mode (e.g., "flashcard")
- * @param {Array<string>} params.cardIds - Array of card UUIDs to include in the session
+ * @param {Array<string>} [params.cardIds] - Array of card UUIDs to include in the session (for manual mode)
+ * @param {number} [params.dueLimit] - Maximum number of due cards to include (for SRS mode)
+ * @param {number} [params.newCount] - Number of new cards to include (for SRS mode)
  * @returns {Promise<any>}
  */
-export async function startReviewSession({deckId, mode, cardIds}) {
-  if (!deckId || !mode || !cardIds || !Array.isArray(cardIds)) {
-    throw new Error('startReviewSession: deckId, mode, and cardIds are required')
+export async function startReviewSession({deckId, mode, cardIds, dueLimit, newCount}) {
+  if (!deckId || !mode) {
+    throw new Error('startReviewSession: deckId and mode are required')
   }
 
-  const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/review_sessions/start`, {
-    deck: deckId,
-    mode,
-    cards: cardIds
-  }, {
+  // Different payload based on review mode
+  let payload;
+  if (cardIds && Array.isArray(cardIds)) {
+    // Manual mode
+    payload = {
+      deck: deckId,
+      mode,
+      cards: cardIds
+    };
+  } else {
+    // SRS mode
+    payload = {
+      deck: deckId,
+      mode,
+      dueLimit: dueLimit || 0,
+      newCount: newCount || 0
+    };
+  }
+
+  const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/review_sessions/start`, payload, {
     headers: {
       'Content-Type': 'application/json',
       ...authHeaders(),
