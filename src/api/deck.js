@@ -35,6 +35,21 @@ export async function fetchDeck(id) {
 }
 
 /**
+ * Fetch a single deck by id, with review stats.
+ * @param {string} id - Deck UUID
+ */
+export async function fetchDeckWithStats(id) {
+  if (!id) throw new Error('fetchDeckWithStats: id is required')
+  const {data} = await axios.get(`${BASE_URL}/${id}/stats`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+  })
+  return data
+}
+
+/**
  * Create a new deck (requires auth).
  * @param {Object} deck - Payload that matches the Deck POST contract
  */

@@ -59,6 +59,7 @@ export default function OutlinedCard({
           transition: 'transform 0.6s',
           transformStyle: 'preserve-3d',
           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          backfaceVisibility: 'hidden',
         }}
       >
         {/* -------- Recto -------- */}
@@ -106,6 +107,7 @@ export default function OutlinedCard({
             flexDirection: 'column',
             justifyContent: 'space-between',
             p: 2,
+            ...sx
           }}
         >
           <CardContent sx={{ p: 0 }}>
