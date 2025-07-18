@@ -25,12 +25,18 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Badge from '@mui/material/Badge';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Stack from '@mui/material/Stack';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import {useTheme} from '@mui/material/styles';
 
 export default function ReviewSetup() {
   const [searchParams] = useSearchParams();
   const deckId = searchParams.get('deck');
   const navigate = useNavigate();
   const {isAuthenticated} = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [deck, setDeck] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,6 +47,9 @@ export default function ReviewSetup() {
   const [eligibleCardsCount, setEligibleCardsCount] = useState(0);
   const [cardSource, setCardSource] = useState('due');
   const [dueCardsCount, setDueCardsCount] = useState(0);
+  const [unseenCount, setUnseenCount] = useState(0);
+  const [dueLimit, setDueLimit] = useState(0);
+  const [newCount, setNewCount] = useState(0);
 
   const handleRandomSelection = (count) => {
     setRandomSelectionCount(count);
@@ -64,19 +73,33 @@ export default function ReviewSetup() {
   };
 
   const handleStartReview = () => {
-    // Only include selected cards with their full data structure
-    const selectedCardsData = deck.cards.filter(card =>
-      selectedCards.includes(card.id)
-    );
+    if (cardSource === 'due') {
+      // For SRS mode, pass the limits to the backend
+      navigate('/review/session', {
+        state: {
+          mode: mode,
+          deckId,
+          deckTitle: deck.title,
+          cardSource: 'due',
+          dueLimit: Math.min(dueLimit, dueCardsCount),
+          newCount: Math.min(newCount, unseenCount)
+        }
+      });
+    } else {
+      // For manual mode, include selected cards
+      const selectedCardsData = deck.cards.filter(card =>
+        selectedCards.includes(card.id)
+      );
 
-    navigate('/review/session', {
-      state: {
-        mode: mode,
-        deckId,
-        deckTitle: deck.title,
-        selectedCards: selectedCardsData
-      }
-    });
+      navigate('/review/session', {
+        state: {
+          mode: mode,
+          deckId,
+          deckTitle: deck.title,
+          selectedCards: selectedCardsData
+        }
+      });
+    }
   };
 
   useDocumentTitle(
@@ -96,6 +119,16 @@ export default function ReviewSetup() {
     setEligibleCardsCount(eligibleCardsCount);
   }, [deck?.cards, mode]);
 
+  // Add effect to calculate unseen cards count
+  useEffect(() => {
+    if (!deck?.cards) return;
+
+    // TODO: Replace with actual unseen cards logic based on review history
+    // For now, simulate unseen cards (cards never reviewed)
+    const simulatedUnseenCount = Math.max(0, deck.cards.length - Math.floor(deck.cards.length * 0.3));
+    setUnseenCount(simulatedUnseenCount);
+  }, [deck?.cards]);
+
   // Add effect to calculate due cards count
   useEffect(() => {
     if (!deck?.cards) return;
@@ -105,11 +138,16 @@ export default function ReviewSetup() {
     const simulatedDueCount = Math.min(12, deck.cards.length);
     setDueCardsCount(simulatedDueCount);
 
+    // Set initial values
+    const simulatedUnseenCount = Math.max(0, deck.cards.length - Math.floor(deck.cards.length * 0.3));
+    setDueLimit(simulatedDueCount);
+    setNewCount(Math.min(5, simulatedUnseenCount));
+
     // If no due cards, force manual selection
     if (simulatedDueCount === 0) {
       setCardSource('manual');
     }
-  }, [deck?.cards]);
+  }, [deck?.cards, unseenCount]);
 
   useEffect(() => {
     if (!isAuthenticated) navigate('/login', {replace: true});
@@ -260,36 +298,100 @@ export default function ReviewSetup() {
           </RadioGroup>
         </FormControl>
 
-        <Box sx={{mt: 2, mb: 4}}>
-          <Typography variant="body2" gutterBottom>
-            {cardSource === 'due' ? 'Nombre maximum de cartes dues' : 'Sélection aléatoire de cartes'}
-          </Typography>
-          <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-            <Typography variant="body2" sx={{minWidth: '20px'}}>
-              {randomSelectionCount}
+        {cardSource === 'due' && (
+          <Box sx={{mt: 2, mb: 4}}>
+            <Stack direction={isMobile ? "column" : "row"} spacing={4}>
+              <Box sx={{flex: 1}}>
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
+                  <Typography variant="body2">
+                    Cartes dues (0–{dueCardsCount})
+                  </Typography>
+                  <Tooltip title="Cartes planifiées par le SRS pour aujourd'hui." arrow>
+                    <InfoOutlinedIcon sx={{fontSize: 16}}/>
+                  </Tooltip>
+                </Box>
+
+                <Slider
+                  value={dueLimit}
+                  onChange={(_, newValue) => setDueLimit(newValue)}
+                  min={0}
+                  max={dueCardsCount}
+                  valueLabelDisplay="auto"
+                  aria-label="Nombre de cartes dues"
+                  disabled={dueCardsCount === 0}
+                  marks={[
+                    {value: 0, label: '0'},
+                    {value: dueCardsCount, label: String(dueCardsCount)}
+                  ]}
+                />
+              </Box>
+
+              <Box sx={{flex: 1}}>
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
+                  <Typography variant="body2">
+                    Nouvelles cartes (0–{unseenCount})
+                  </Typography>
+                  <Tooltip title="Cartes jamais revues qui seront ajoutées en plus des cartes dues." arrow>
+                    <InfoOutlinedIcon sx={{fontSize: 16}}/>
+                  </Tooltip>
+                  {unseenCount > 0 && (
+                    <Badge badgeContent={unseenCount} color="secondary" sx={{ml: 1}}/>
+                  )}
+                </Box>
+
+                <Slider
+                  value={newCount}
+                  onChange={(_, newValue) => setNewCount(newValue)}
+                  min={0}
+                  max={unseenCount}
+                  valueLabelDisplay="auto"
+                  aria-label="Nombre de cartes nouvelles"
+                  disabled={unseenCount === 0}
+                  marks={[
+                    {value: 0, label: '0'},
+                    {value: unseenCount, label: String(unseenCount)}
+                  ]}
+                />
+              </Box>
+            </Stack>
+
+            <Box sx={{mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1}}>
+              <Typography variant="body2" color="text.secondary">
+                Total sélectionné
+                : <strong>{Math.min(dueLimit, dueCardsCount)} dues</strong> + <strong>{Math.min(newCount, unseenCount)} nouvelles</strong> = <strong>{Math.min(dueLimit, dueCardsCount) + Math.min(newCount, unseenCount)} cartes</strong>
+              </Typography>
+            </Box>
+          </Box>
+        )}
+
+        {cardSource === 'manual' && (
+          <Box sx={{mt: 2, mb: 4}}>
+            <Typography variant="body2" gutterBottom>
+              Sélection aléatoire de cartes
             </Typography>
-            <Slider
-              value={randomSelectionCount}
-              onChange={(_, newValue) => setRandomSelectionCount(newValue)}
-              onChangeCommitted={(_, newValue) => handleRandomSelection(newValue)}
-              min={0}
-              max={cardSource === 'due' ? dueCardsCount : (eligibleCardsCount || 0)}
-              valueLabelDisplay="auto"
-              aria-labelledby="random-selection-slider"
-              sx={{mx: 2}}
-              disabled={cardSource === 'due' && dueCardsCount === 0}
-            />
-            <Typography variant="body2" sx={{minWidth: '35px'}}>
-              {cardSource === 'due' ? dueCardsCount : (eligibleCardsCount || 0)}
+            <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+              <Typography variant="body2" sx={{minWidth: '20px'}}>
+                {randomSelectionCount}
+              </Typography>
+              <Slider
+                value={randomSelectionCount}
+                onChange={(_, newValue) => setRandomSelectionCount(newValue)}
+                onChangeCommitted={(_, newValue) => handleRandomSelection(newValue)}
+                min={0}
+                max={eligibleCardsCount || 0}
+                valueLabelDisplay="auto"
+                aria-labelledby="random-selection-slider"
+                sx={{mx: 2}}
+              />
+              <Typography variant="body2" sx={{minWidth: '35px'}}>
+                {eligibleCardsCount || 0}
+              </Typography>
+            </Box>
+            <Typography variant="caption" color="text.secondary">
+              Déplacez le curseur pour sélectionner aléatoirement un nombre de fiches (0 = sélection manuelle)
             </Typography>
           </Box>
-          <Typography variant="caption" color="text.secondary">
-            {cardSource === 'due'
-              ? 'Limitez le nombre de cartes dues à réviser (0 = toutes les cartes dues)'
-              : 'Déplacez le curseur pour sélectionner aléatoirement un nombre de fiches (0 = sélection manuelle)'
-            }
-          </Typography>
-        </Box>
+        )}
 
         <FormControl sx={{mb: 4, width: '100%'}}>
           <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
@@ -447,7 +549,7 @@ export default function ReviewSetup() {
 
           <FormLabel id="card-count-label" sx={{mt: 3}}>
             Nombre de fiches à réviser: {cardSource === 'due' ?
-            (randomSelectionCount > 0 ? Math.min(randomSelectionCount, dueCardsCount) : dueCardsCount) :
+            (Math.min(dueLimit, dueCardsCount) + Math.min(newCount, unseenCount)) :
             selectedCards.length
           }
           </FormLabel>
@@ -463,7 +565,7 @@ export default function ReviewSetup() {
             disabled={
               deck.card_count === 0 ||
               (cardSource === 'manual' && selectedCards.length === 0) ||
-              (cardSource === 'due' && dueCardsCount === 0)
+              (cardSource === 'due' && (Math.min(dueLimit, dueCardsCount) + Math.min(newCount, unseenCount)) === 0)
             }
           >
             Commencer la révision
