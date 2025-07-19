@@ -17,6 +17,8 @@ import MenuItem from "@mui/material/MenuItem";
 import {useState} from "react";
 import {useAuth} from "../../context/AuthContext.jsx";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import DueBadge from '../gamification/DueBadge'
+import { useTodayDueCount } from '../../hooks/useTodayDueCount'
 
 const Search = styled('div')(({theme}) => ({
   position: 'relative',
@@ -86,6 +88,7 @@ export default function Header(props) {
     handleCloseUserMenu();
   }
 
+  const dueCount = useTodayDueCount();
 
   return (
     <>
@@ -122,8 +125,14 @@ export default function Header(props) {
               />
             </Search>
 
+            <Box sx={{ml: 'auto', mr: 5}}>
+              {(isAuthenticated && dueCount > 0) && (
+                <DueBadge count={dueCount} />
+              )}
+            </Box>
+
             {isAuthenticated ? (
-              <Box sx={{flexGrow: 0, ml: 'auto'}}>
+              <Box sx={{flexGrow: 0}}>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
                     <Avatar alt="User Avatar" src="/static/images/avatar/2.jpg"/>

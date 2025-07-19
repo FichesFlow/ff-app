@@ -146,3 +146,26 @@ export async function createReviewEvent({sessionId, cardId, score}) {
   })
   return data
 }
+
+
+/**
+ * Get the number of due cards for the user.
+ * @returns {Promise<any>}
+ */
+export async function getDue() {
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/review/due`, {
+    headers: authHeaders(),
+  })
+  return data
+}
+
+/**
+ * Get the total due count for today.
+ * @returns {Promise<any>}
+ */
+export async function getDueCount() {
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/review/due/count`, {
+    headers: authHeaders(),
+  })
+  return data
+}
