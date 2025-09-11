@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export async function login(email, password) {
   try {
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/login_check`, {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, {
       email,
       password
     });
