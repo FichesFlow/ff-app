@@ -18,8 +18,8 @@ export default function AudioPlayer({ texte }) {
         const nouvelleVoix = new SpeechSynthesisUtterance(texte);
         // Afaire -> trouvezr une voix française non robotique
         nouvelleVoix.lang = "fr-FR";
-        nouvelleVoix.rate = 1.5;
-        nouvelleVoix.pitch = 1.5;
+        nouvelleVoix.rate = 0.8; 
+        nouvelleVoix.pitch = 1.5; 
         nouvelleVoix.volume = 1;
         // Sélectionne la première voix disponible
         const voixDispos = speechSynthesis.getVoices();
