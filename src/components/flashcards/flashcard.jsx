@@ -91,6 +91,7 @@ export default function OutlinedCard({
           {description_verso && (
             <CardActions sx={{ p: 0 }}>
               <Button size="small" onClick={handleFlip}>Verso</Button>
+              <AudioPlayer texte={description_recto} /> {/* Bouton écouter */}
             </CardActions>
           )}
         </Card>
