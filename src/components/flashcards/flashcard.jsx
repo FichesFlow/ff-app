@@ -58,8 +58,7 @@ export default function OutlinedCard({
           height: '100%',
           transition: 'transform 0.6s',
           transformStyle: 'preserve-3d',
-          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-          backfaceVisibility: 'hidden',
+          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
         }}
       >
         {/* -------- Recto -------- */}
@@ -90,7 +89,7 @@ export default function OutlinedCard({
 
           {description_verso && (
             <CardActions sx={{ p: 0 }}>
-              <Button size="small" onClick={handleFlip}>Voir le verso</Button>
+              <Button size="small" onClick={handleFlip}>Verso</Button>
             </CardActions>
           )}
         </Card>
@@ -123,7 +122,7 @@ export default function OutlinedCard({
           </CardContent>
 
           <CardActions sx={{ p: 0 }}>
-            <Button size="small" onClick={handleFlip}>Retourner</Button>
+            <Button size="small" onClick={handleFlip}>Recto</Button>
           </CardActions>
         </Card>
       </Box>
