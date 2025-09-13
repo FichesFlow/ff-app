@@ -13,6 +13,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import { defaultSchema } from 'hast-util-sanitize';
+import AudioPlayer from './Audio_Flashcards';
 
 // schema du style sur <mark> & <span> 
 const schema = {
@@ -123,6 +124,7 @@ export default function OutlinedCard({
 
           <CardActions sx={{ p: 0 }}>
             <Button size="small" onClick={handleFlip}>Recto</Button>
+            <AudioPlayer texte={description_verso} /> {/* Bouton écouter */}
           </CardActions>
         </Card>
       </Box>

@@ -224,7 +224,7 @@ export default forwardRef(function MarkdownEditor(props, ref) {
   markdown={props.markdown || '# Hello world'}
   onChange={(md) => {
         const safe = sanitizeHtml(md)
-        // 🔒 met à jour le contenu avec uniquement les balises autorisées
+        // met à jour le contenu avec uniquement les balises autorisées
         editorRef.current?.setMarkdown(safe)
       }}
   plugins={plugins}
