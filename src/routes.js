@@ -16,6 +16,7 @@ import LegalTerms from './pages/LegalTerms.jsx'
 import About from './pages/About.jsx'
 import MyDecks from './pages/MyDecks.jsx'
 import ReviewQueue from './pages/ReviewQueue.jsx';
+import TodayDashboard from './pages/TodayDashboard.jsx';
 import ReviewSetup from './pages/ReviewSetup.jsx';
 import ReviewSession from './pages/ReviewSession.jsx';
 
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([{
       path: 'review',
       children: [
         {index: true, Component: ReviewSetup},
+        {path: 'today', Component: TodayDashboard},
         {path: 'session', Component: ReviewSession},
       ]
     },

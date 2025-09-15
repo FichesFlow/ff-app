@@ -76,8 +76,8 @@ export async function getMyReviewQueues() {
  * @returns {Promise<any>}
  */
 export async function startReviewSession({deckId, mode, cardIds, dueLimit, newCount}) {
-  if (!deckId || !mode) {
-    throw new Error('startReviewSession: deckId and mode are required')
+  if (!mode) {
+    throw new Error('startReviewSession: mode is required')
   }
 
   // Different payload based on review mode

@@ -65,7 +65,7 @@ export function useReviewSession(deckId, mode, selectedCards, cardSource, dueLim
       }
     }
 
-    if (deckId && mode) {
+    if (mode) {
       initSession();
     } else {
       setIsLoading(false);
