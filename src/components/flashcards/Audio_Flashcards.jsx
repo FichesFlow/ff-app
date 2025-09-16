@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Button from "@mui/material/Button";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import StopIcon from "@mui/icons-material/Stop";
 
 export default function AudioPlayer({ texte }) {
   const [enLecture, setEnLecture] = useState(false);
@@ -65,8 +67,8 @@ export default function AudioPlayer({ texte }) {
   }
 
   return !enLecture ? (
-    <Button size="small" onClick={lireTexte}>Écouter</Button>
+    <Button size="small" onClick={lireTexte} startIcon={<VolumeUpIcon/>}></Button>
   ) : (
-    <Button size="small" onClick={arreterLecture}>Arrêter</Button>
+    <Button size="small" onClick={arreterLecture} startIcon={<StopIcon/>}></Button>
   );
 }
