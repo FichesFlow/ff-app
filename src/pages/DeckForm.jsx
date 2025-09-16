@@ -165,6 +165,12 @@ export default function DeckForm() {
       </Container>
     );
   }
+  // Récupération de l'user
+    const [user, setName] = useState("");
+    useEffect(() => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user) setName(user);
+    }, []);
 
   return (
     <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
@@ -210,6 +216,7 @@ export default function DeckForm() {
               sujet={titre || 'Titre de la fiche'}
               description_recto={card.content}
               description_verso="Description du verso de la fiche (optionnel)"
+              nom={user.name}
             />
             <Box mt={1} display="flex" gap={1} justifyContent="center">
               <Button

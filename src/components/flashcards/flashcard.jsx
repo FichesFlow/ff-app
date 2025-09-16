@@ -43,6 +43,7 @@ export default function OutlinedCard({
   theme,
   description_recto,
   description_verso,
+  nom,
   sx = {},
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -89,9 +90,15 @@ export default function OutlinedCard({
           </CardContent>
 
           {description_verso && (
-            <CardActions sx={{ p: 0 }}>
+            <CardActions sx={{ p: 0, justifyContent: "space-between" }}>
               <Button size="small" onClick={handleFlip}>Verso</Button>
               <AudioPlayer texte={description_recto} /> {/* Bouton écouter */}
+              {/* Affichage du nom de l'user */}
+              {nom && (
+                <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                  {nom}
+                </Typography>
+              )}
             </CardActions>
           )}
         </Card>
@@ -123,9 +130,15 @@ export default function OutlinedCard({
             </Box>
           </CardContent>
 
-          <CardActions sx={{ p: 0 }}>
+          <CardActions sx={{ p: 0, justifyContent: "space-between" }}>
             <Button size="small" onClick={handleFlip}>Recto</Button>
             <AudioPlayer texte={description_verso} /> {/* Bouton écouter */}
+            {/* Affichage du nom de l'user */}
+            {nom && (
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                {nom}
+              </Typography>
+            )}
           </CardActions>
         </Card>
       </Box>
