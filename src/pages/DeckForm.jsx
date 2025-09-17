@@ -26,6 +26,7 @@ export default function DeckForm() {
   const [visibility, setVisibility] = useState('private')
   const [status, setStatus] = useState('draft')
   const [isLoading, setIsLoading] = useState(isEditMode)
+  const [user, setUser] = useState("");
 
   const markdownRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -35,6 +36,11 @@ export default function DeckForm() {
   const [isImporting, setIsImporting] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    if (userData) setUser(userData);
+  }, []);
 
   /* Fetch deck data when in edit mode */
   useEffect(() => {
@@ -236,12 +242,7 @@ export default function DeckForm() {
       </Container>
     );
   }
-  // Récupération de l'user
-  const [user, setName] = useState("");
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) setName(user);
-  }, []);
+
 
   return (
     <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
