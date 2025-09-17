@@ -12,6 +12,9 @@ import {toast} from 'react-toastify';
 import {createDeck, fetchDeck, updateDeck} from "../api/deck.js";
 import {useNavigate, useParams} from 'react-router';
 import CircularProgress from '@mui/material/CircularProgress';
+import {LinearProgress} from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
+import {importFileForCards} from "../api/import.js";
 
 export default function DeckForm() {
   const {id} = useParams();
@@ -27,9 +30,11 @@ export default function DeckForm() {
   const [isLoading, setIsLoading] = useState(isEditMode)
 
   const markdownRef = useRef(null)
+  const fileInputRef = useRef(null)
   const [cards, setCards] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isImporting, setIsImporting] = useState(false);
 
   const navigate = useNavigate();
 
@@ -101,6 +106,54 @@ export default function DeckForm() {
     }
   }
 
+  /* import file */
+  const handleImportFile = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop().toLowerCase();
+    const allowedExtensions = ['txt', 'csv', 'md', 'json'];
+
+    if (!allowedExtensions.includes(extension)) {
+      toast.error('Format de fichier non supporté. Utilisez .txt, .csv, .md ou .json');
+      return;
+    }
+
+    setIsImporting(true);
+
+    try {
+      const data = await importFileForCards(file);
+      const { cards: importedCards, cardCount } = data;
+      console.log(importedCards)
+
+      // Transform imported cards to match the expected format
+      const transformedCards = importedCards.map((card, index) => ({
+        id: crypto.randomUUID(),
+        content: typeof card === 'string' ? card : (card.content || JSON.stringify(card)),
+        position: cards.length + index
+      }));
+
+
+      console.log(transformedCards)
+
+      setCards(prev => [...prev, ...transformedCards]);
+      toast.success(`${cardCount} fiche(s) importée(s) avec succès !`);
+
+      // Reset file input
+      event.target.value = '';
+    } catch (error) {
+      console.error('Error importing file:', error);
+      toast.error('Échec de l\'importation du fichier. Veuillez réessayer.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+
   /* send deck */
   const handleSubmitDeck = async () => {
     if (!titre.trim() || cards.length === 0) {
@@ -147,7 +200,7 @@ export default function DeckForm() {
       if (response && (response.id || id)) {
         navigate('/decks/' + (response.id || id));
       } else {
-        throw new Error('Invalid response');
+        toast.error("Une erreur est survenue. Veuillez réessayer.");
       }
     } catch (e) {
       console.error(e)
@@ -195,19 +248,36 @@ export default function DeckForm() {
         <Button
           variant="contained"
           onClick={handleSaveCard}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isImporting}
         >
           {editingId ? 'Mettre à jour la fiche' : 'Ajouter une fiche'}
         </Button>
+
+        <Button
+          variant="outlined"
+          onClick={handleImportFile}
+          disabled={isSubmitting || isImporting}
+        >
+          {isImporting ? 'Importation en cours...' : 'Importer un fichier'}
+        </Button>
+
         <Button
           variant="contained"
           onClick={handleSubmitDeck}
           color="secondary"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isImporting}
         >
           {isSubmitting ? 'Envoi en cours...' : isEditMode ? 'Mettre à jour le deck' : 'Créer le deck'}
         </Button>
       </Stack>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".txt,.csv,.md,.json"
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
 
       <Grid container spacing={2}>
         {cards.map((card) => (
