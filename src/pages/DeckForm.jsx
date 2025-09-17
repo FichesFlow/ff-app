@@ -12,8 +12,6 @@ import {toast} from 'react-toastify';
 import {createDeck, fetchDeck, updateDeck} from "../api/deck.js";
 import {useNavigate, useParams} from 'react-router';
 import CircularProgress from '@mui/material/CircularProgress';
-import {LinearProgress} from "@mui/material";
-import Tooltip from "@mui/material/Tooltip";
 import {importFileForCards} from "../api/import.js";
 
 export default function DeckForm() {
@@ -54,9 +52,11 @@ export default function DeckForm() {
 
           const transformedCards = deckData.cards.map(card => {
             const frontSide = card.cardSides.find(side => side.side === "front");
+            const backSide = card.cardSides.find(side => side.side === "back");
             return {
               id: crypto.randomUUID(),
-              content: frontSide?.cardBlock?.content || '',
+              content_recto: frontSide?.cardBlock?.content || '',
+              content_verso: backSide?.cardBlock?.content || '',
               position: card.position
             };
           });
@@ -81,10 +81,10 @@ export default function DeckForm() {
     if (!md || md.trim() === '') return
 
     if (editingId) {
-      setCards((prev) => prev.map((c) => (c.id === editingId ? {...c, content: md} : c)))
+      setCards((prev) => prev.map((c) => (c.id === editingId ? {...c, content_recto: md} : c)))
       setEditingId(null)
     } else {
-      setCards((prev) => [...prev, {id: crypto.randomUUID(), content: md}])
+      setCards((prev) => [...prev, {id: crypto.randomUUID(), content_recto: md, content_verso: ''}])
     }
     markdownRef.current.setMarkdown('')
   }
@@ -93,7 +93,7 @@ export default function DeckForm() {
   const handleEditCard = (id) => {
     const card = cards.find((c) => c.id === id)
     if (!card) return
-    markdownRef.current?.setMarkdown(card.content)
+    markdownRef.current?.setMarkdown(card.content_recto)
     setEditingId(id)
   }
 
@@ -127,18 +127,30 @@ export default function DeckForm() {
 
     try {
       const data = await importFileForCards(file);
-      const { cards: importedCards, cardCount } = data;
-      console.log(importedCards)
+      const {cards: importedCards, cardCount} = data;
 
       // Transform imported cards to match the expected format
-      const transformedCards = importedCards.map((card, index) => ({
-        id: crypto.randomUUID(),
-        content: typeof card === 'string' ? card : (card.content || JSON.stringify(card)),
-        position: cards.length + index
-      }));
+      const transformedCards = importedCards.map((card, index) => {
+        const getCardContent = () => {
+          if (typeof card === 'object' && card?.front) {
+            return {recto: card.front, verso: card.back || ''};
+          }
+          if (typeof card === 'string') {
+            return {recto: card, verso: ''};
+          }
+          return {recto: card.content || JSON.stringify(card), verso: ''};
+        };
 
+        const {recto, verso} = getCardContent();
 
-      console.log(transformedCards)
+        return {
+          id: crypto.randomUUID(),
+          content_recto: recto,
+          content_verso: verso,
+          position: cards.length + index
+        };
+      });
+
 
       setCards(prev => [...prev, ...transformedCards]);
       toast.success(`${cardCount} fiche(s) importée(s) avec succès !`);
@@ -175,7 +187,13 @@ export default function DeckForm() {
           {
             side: 'front',
             cardBlock: {
-              content: c.content
+              content: c.content_recto
+            }
+          },
+          {
+            side: 'back',
+            cardBlock: {
+              content: c.content_verso
             }
           }
         ]
@@ -219,11 +237,11 @@ export default function DeckForm() {
     );
   }
   // Récupération de l'user
-    const [user, setName] = useState("");
-    useEffect(() => {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (user) setName(user);
-    }, []);
+  const [user, setName] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) setName(user);
+  }, []);
 
   return (
     <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
@@ -276,7 +294,7 @@ export default function DeckForm() {
         type="file"
         accept=".txt,.csv,.md,.json"
         onChange={handleFileSelect}
-        style={{ display: 'none' }}
+        style={{display: 'none'}}
       />
 
       <Grid container spacing={2}>
@@ -284,8 +302,8 @@ export default function DeckForm() {
           <Grid item key={card.id}>
             <OutlinedCard
               sujet={titre || 'Titre de la fiche'}
-              description_recto={card.content}
-              description_verso="Description du verso de la fiche (optionnel)"
+              description_recto={card.content_recto}
+              description_verso={card.content_verso || "Description du verso de la fiche (optionnel)"}
               nom={user.name}
             />
             <Box mt={1} display="flex" gap={1} justifyContent="center">
