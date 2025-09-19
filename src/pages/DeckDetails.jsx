@@ -7,14 +7,20 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
+import Rating from '@mui/material/Rating'
+import IconButton from '@mui/material/IconButton'
 import SchoolIcon from '@mui/icons-material/School'
 import AddIcon from '@mui/icons-material/Add'
+import StarIcon from '@mui/icons-material/Star'
+import DeleteIcon from '@mui/icons-material/Delete'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
 import {useAuth} from '../context/AuthContext'
 import {toast} from 'react-toastify'
 import {addToRevisionQueue} from "../api/review.js";
 import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 import {fetchDeck} from '../api/deck'
+import Divider from '@mui/material/Divider'
+import {fetchUserRating, submitDeckRating, deleteDeckRating} from "../api/rating.js";
 
 
 export default function DeckDetails() {
@@ -24,6 +30,8 @@ export default function DeckDetails() {
   const [error, setError] = useState(null)
   const {isAuthenticated} = useAuth()
   const [addingToQueue, setAddingToQueue] = useState(false)
+  const [userRating, setUserRating] = useState(0)
+  const [submittingRating, setSubmittingRating] = useState(false)
 
   useDocumentTitle(
     loading
@@ -49,10 +57,61 @@ export default function DeckDetails() {
           setLoading(false)
         }
       })
+    
+    // fetch the user's rating for this deck if authenticated
+    if (isAuthenticated) {
+      fetchUserRating(id)
+        .then((rating) => {
+          if (isMounted) {
+            setUserRating(rating || 0)
+          }
+        })
+        .catch((err) => {
+          console.error('Error fetching user rating:', err)
+        })
+    }
     return () => {
       isMounted = false
     }
-  }, [id])
+  }, [id, isAuthenticated])
+
+  const handleRatingSubmit = async (newRating) => {
+    if (!isAuthenticated) {
+      toast.error('Vous devez être connecté pour noter ce deck')
+      return
+    }
+
+    setSubmittingRating(true)
+    try {
+      await submitDeckRating(id, newRating)
+      setUserRating(newRating)
+      toast.success('Votre note a été enregistrée')
+    } catch (err) {
+      console.error('Error submitting rating:', err)
+      toast.error('Erreur lors de l\'enregistrement de votre note')
+    } finally {
+      setSubmittingRating(false)
+    }
+  }
+
+  const handleRatingDelete = async () => {
+    if (!isAuthenticated) {
+      toast.error('Vous devez être connecté pour supprimer votre note')
+      return
+    }
+
+    setSubmittingRating(true)
+    try {
+      await deleteDeckRating(id)
+      setUserRating(0)
+      toast.success('Votre note a été supprimée')
+    } catch (err) {
+      console.error('Error deleting rating:', err)
+      toast.error('Erreur lors de la suppression de votre note')
+    } finally {
+      setSubmittingRating(false)
+    }
+  }
 
   const handleAddToQueue = async () => {
     if (!isAuthenticated) {
@@ -111,11 +170,68 @@ export default function DeckDetails() {
           <Typography variant="h3" gutterBottom id="deck-title">
             {deck.title}
           </Typography>
+
+          <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={2}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Rating
+                value={deck.rating_avg || 0}
+                precision={0.1}
+                readOnly
+                size="small"
+                emptyIcon={<StarIcon style={{ opacity: 0.3 }} fontSize="inherit" />}
+              />
+              <Typography variant="body2" color="text.secondary">
+                {deck.rating_count ? `${deck.rating_avg.toFixed(1)}` : 'Pas de notes'}
+                {deck.rating_count ? ` (${deck.rating_count} avis)` : ''}
+              </Typography>
+            </Box>
+
+            {isAuthenticated && (
+              <>
+                <Divider orientation="vertical" flexItem sx={{ height: 20 }} />
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography variant="body2" color="text.secondary">
+                    Votre note :
+                  </Typography>
+                  <Rating
+                    value={userRating}
+                    onChange={(event, newValue) => {
+                      if (newValue !== null) {
+                        handleRatingSubmit(newValue)
+                      }
+                    }}
+                    disabled={submittingRating}
+                    size="small"
+                    emptyIcon={<StarIcon style={{ opacity: 0.3 }} fontSize="inherit" />}
+                  />
+                  {userRating > 0 && (
+                    <Tooltip title="Supprimer votre note" arrow>
+                      <IconButton
+                        onClick={handleRatingDelete}
+                        disabled={submittingRating}
+                        size="small"
+                        color="error"
+                        aria-label="Supprimer votre note"
+                        sx={{ ml: 0.5 }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  {submittingRating && (
+                    <CircularProgress size={12} />
+                  )}
+                </Box>
+              </>
+            )}
+          </Box>
+
           {deck.description && (
-            <Typography variant="subtitle1" color="text.secondary">
+            <Typography variant="subtitle1" color="text.secondary" mb={2}>
               {deck.description}
             </Typography>
           )}
+
           <Box mt={2} display="flex" justifyContent="center" gap={2}>
             <Button
               component={RouterLink}

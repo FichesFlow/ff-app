@@ -8,6 +8,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
 import CardActions from "@mui/material/CardActions";
+import Rating from "@mui/material/Rating";
+import Box from "@mui/material/Box";
 
 export default function DeckPreviewCard(
   {
@@ -66,6 +68,18 @@ export default function DeckPreviewCard(
         >
           {deck.description || "Aucune description"}
         </Typography>
+        <Box sx={{mb: 2}}>
+          <Rating
+            value={deck.rating_avg || 0}
+            precision={0.1}
+            readOnly
+            size="small"
+            sx={{mb: 0.5}}
+          />
+          <Typography variant="caption" color="text.secondary" ml={1}>
+            {deck.rating_avg ? `${deck.rating_avg.toFixed(1)}/5` : 'Pas de notes'}
+          </Typography>
+        </Box>
         <Stack direction="row" spacing={1} sx={{mb: 1}}>
           {showMetadata && (
             <>
