@@ -7,14 +7,17 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
+import Rating from '@mui/material/Rating'
 import SchoolIcon from '@mui/icons-material/School'
 import AddIcon from '@mui/icons-material/Add'
+import StarIcon from '@mui/icons-material/Star'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
 import {useAuth} from '../context/AuthContext'
 import {toast} from 'react-toastify'
 import {addToRevisionQueue} from "../api/review.js";
 import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 import {fetchDeck} from '../api/deck'
+import Divider from '@mui/material/Divider'
 
 
 export default function DeckDetails() {
@@ -24,6 +27,8 @@ export default function DeckDetails() {
   const [error, setError] = useState(null)
   const {isAuthenticated} = useAuth()
   const [addingToQueue, setAddingToQueue] = useState(false)
+  const [userRating, setUserRating] = useState(0)
+  const [submittingRating, setSubmittingRating] = useState(false)
 
   useDocumentTitle(
     loading
@@ -53,6 +58,27 @@ export default function DeckDetails() {
       isMounted = false
     }
   }, [id])
+
+  const handleRatingSubmit = async (newRating) => {
+    if (!isAuthenticated) {
+      toast.error('Vous devez être connecté pour noter ce deck')
+      return
+    }
+
+    setSubmittingRating(true)
+    try {
+      // TODO: Replace with actual API call
+      // await submitDeckRating(id, newRating)
+      console.log('Rating submitted:', newRating)
+      setUserRating(newRating)
+      toast.success('Votre note a été enregistrée')
+    } catch (err) {
+      console.error('Error submitting rating:', err)
+      toast.error('Erreur lors de l\'enregistrement de votre note')
+    } finally {
+      setSubmittingRating(false)
+    }
+  }
 
   const handleAddToQueue = async () => {
     if (!isAuthenticated) {
@@ -111,11 +137,54 @@ export default function DeckDetails() {
           <Typography variant="h3" gutterBottom id="deck-title">
             {deck.title}
           </Typography>
+
+          <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={2}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Rating
+                value={deck.rating_avg || 0}
+                precision={0.1}
+                readOnly
+                size="small"
+                emptyIcon={<StarIcon style={{ opacity: 0.3 }} fontSize="inherit" />}
+              />
+              <Typography variant="body2" color="text.secondary">
+                {deck.rating_count ? `${deck.rating_avg.toFixed(1)}` : 'Pas de notes'}
+                {deck.rating_count ? ` (${deck.rating_count} avis)` : ''}
+              </Typography>
+            </Box>
+
+            {isAuthenticated && (
+              <>
+                <Divider orientation="vertical" flexItem sx={{ height: 20 }} />
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography variant="body2" color="text.secondary">
+                    Votre note :
+                  </Typography>
+                  <Rating
+                    value={userRating}
+                    onChange={(event, newValue) => {
+                      if (newValue !== null) {
+                        handleRatingSubmit(newValue)
+                      }
+                    }}
+                    disabled={submittingRating}
+                    size="small"
+                    emptyIcon={<StarIcon style={{ opacity: 0.3 }} fontSize="inherit" />}
+                  />
+                  {submittingRating && (
+                    <CircularProgress size={12} />
+                  )}
+                </Box>
+              </>
+            )}
+          </Box>
+
           {deck.description && (
-            <Typography variant="subtitle1" color="text.secondary">
+            <Typography variant="subtitle1" color="text.secondary" mb={2}>
               {deck.description}
             </Typography>
           )}
+
           <Box mt={2} display="flex" justifyContent="center" gap={2}>
             <Button
               component={RouterLink}
