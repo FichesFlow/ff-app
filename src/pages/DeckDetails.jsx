@@ -8,9 +8,11 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
 import Rating from '@mui/material/Rating'
+import IconButton from '@mui/material/IconButton'
 import SchoolIcon from '@mui/icons-material/School'
 import AddIcon from '@mui/icons-material/Add'
 import StarIcon from '@mui/icons-material/Star'
+import DeleteIcon from '@mui/icons-material/Delete'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
 import {useAuth} from '../context/AuthContext'
 import {toast} from 'react-toastify'
@@ -18,6 +20,7 @@ import {addToRevisionQueue} from "../api/review.js";
 import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 import {fetchDeck} from '../api/deck'
 import Divider from '@mui/material/Divider'
+import {fetchUserRating, submitDeckRating, deleteDeckRating} from "../api/rating.js";
 
 
 export default function DeckDetails() {
@@ -54,10 +57,23 @@ export default function DeckDetails() {
           setLoading(false)
         }
       })
+    
+    // fetch the user's rating for this deck if authenticated
+    if (isAuthenticated) {
+      fetchUserRating(id)
+        .then((rating) => {
+          if (isMounted) {
+            setUserRating(rating || 0)
+          }
+        })
+        .catch((err) => {
+          console.error('Error fetching user rating:', err)
+        })
+    }
     return () => {
       isMounted = false
     }
-  }, [id])
+  }, [id, isAuthenticated])
 
   const handleRatingSubmit = async (newRating) => {
     if (!isAuthenticated) {
@@ -67,14 +83,31 @@ export default function DeckDetails() {
 
     setSubmittingRating(true)
     try {
-      // TODO: Replace with actual API call
-      // await submitDeckRating(id, newRating)
-      console.log('Rating submitted:', newRating)
+      await submitDeckRating(id, newRating)
       setUserRating(newRating)
       toast.success('Votre note a été enregistrée')
     } catch (err) {
       console.error('Error submitting rating:', err)
       toast.error('Erreur lors de l\'enregistrement de votre note')
+    } finally {
+      setSubmittingRating(false)
+    }
+  }
+
+  const handleRatingDelete = async () => {
+    if (!isAuthenticated) {
+      toast.error('Vous devez être connecté pour supprimer votre note')
+      return
+    }
+
+    setSubmittingRating(true)
+    try {
+      await deleteDeckRating(id)
+      setUserRating(0)
+      toast.success('Votre note a été supprimée')
+    } catch (err) {
+      console.error('Error deleting rating:', err)
+      toast.error('Erreur lors de la suppression de votre note')
     } finally {
       setSubmittingRating(false)
     }
@@ -171,6 +204,20 @@ export default function DeckDetails() {
                     size="small"
                     emptyIcon={<StarIcon style={{ opacity: 0.3 }} fontSize="inherit" />}
                   />
+                  {userRating > 0 && (
+                    <Tooltip title="Supprimer votre note" arrow>
+                      <IconButton
+                        onClick={handleRatingDelete}
+                        disabled={submittingRating}
+                        size="small"
+                        color="error"
+                        aria-label="Supprimer votre note"
+                        sx={{ ml: 0.5 }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                   {submittingRating && (
                     <CircularProgress size={12} />
                   )}

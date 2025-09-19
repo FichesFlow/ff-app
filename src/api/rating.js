@@ -22,3 +22,28 @@ export const submitDeckRating = async (deckId, rating) => {
 
   return data;
 }
+
+export const fetchUserRating = async (deckId) => {
+  if (!deckId) throw new Error('fetchUserRating: deckId is required');
+
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/decks/${deckId}/rate`, {
+    headers: {
+      'Accept': 'application/json',
+      ...authHeaders(),
+    },
+  });
+
+  return data.rating;
+}
+
+export const deleteDeckRating = async (deckId) => {
+  if (!deckId) throw new Error('deleteDeckRating: deckId is required');
+
+  const {data} = await axios.delete(`${import.meta.env.VITE_API_URL}/decks/${deckId}/rate`, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+
+  return data;
+}
