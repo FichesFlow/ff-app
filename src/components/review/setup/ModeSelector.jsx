@@ -34,6 +34,17 @@ export default function ModeSelector({mode, onModeChange}) {
             </Button>
           </span>
         </Tooltip>
+        <Tooltip title='Révisez vos cartes à l’oral.'arrow placement="top">
+          <span>
+              <Button
+              variant={mode === 'dictaphone' ? 'contained' : 'outlined'}
+              onClick={() => onModeChange('dictaphone')}
+              sx={{width: '150px'}}
+            >
+              Dictaphone
+            </Button>
+            </span>
+            </Tooltip>
       </Box>
     </FormControl>
   );
