@@ -68,10 +68,16 @@ export default function DeckComments({deckId}) {
     if (!newContent.trim()) return;
 
     try {
-      const updatedComment = await updateComment(commentId, newContent.trim());
+      await updateComment(commentId, newContent.trim());
       setComments(prev =>
         prev.map(comment =>
-          comment.id === commentId ? updatedComment : comment
+          comment.id === commentId
+            ? {
+              ...comment,
+              body: newContent.trim(),
+              updated_at: new Date().toISOString()
+            }
+            : comment
         )
       );
       setEditingId(null);
@@ -112,7 +118,7 @@ export default function DeckComments({deckId}) {
 
   const startEditing = (comment) => {
     setEditingId(comment.id);
-    setEditingContent(comment.content);
+    setEditingContent(comment.body);
     handleCloseMenu();
   };
 
@@ -195,7 +201,7 @@ export default function DeckComments({deckId}) {
                   alt={comment.commenter?.username}
                   sx={{width: 40, height: 40}}
                 >
-                  {comment.user?.name?.charAt(0)}
+                  {comment.commenter?.username?.charAt(0)}
                 </Avatar>
 
                 <Box flex={1}>
@@ -210,7 +216,7 @@ export default function DeckComments({deckId}) {
                       </Typography>
                     </Box>
 
-                    {isAuthenticated && user?.email === comment.user?.email && (
+                    {isAuthenticated && user?.id === comment.commenter?.id && (
                       <IconButton
                         size="small"
                         onClick={(e) => handleMenuOpen(e, comment)}

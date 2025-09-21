@@ -52,7 +52,7 @@ export const updateComment = async (commentId, content) => {
   if (!content) throw new Error('updateComment: content is required');
 
   const {data} = await axios.put(`${import.meta.env.VITE_API_URL}/comments/${commentId}`,
-    {content},
+    {body: content},
     {
       headers: {
         'Content-Type': 'application/json',
