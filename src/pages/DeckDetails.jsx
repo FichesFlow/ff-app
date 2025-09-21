@@ -14,13 +14,14 @@ import AddIcon from '@mui/icons-material/Add'
 import StarIcon from '@mui/icons-material/Star'
 import DeleteIcon from '@mui/icons-material/Delete'
 import OutlinedCard from '../components/flashcards/flashcard.jsx'
+import DeckComments from '../components/deck/DeckComments.jsx'
 import {useAuth} from '../context/AuthContext'
 import {toast} from 'react-toastify'
 import {addToRevisionQueue} from "../api/review.js";
 import {useDocumentTitle} from "../hooks/useDocumentTitle.js";
 import {fetchDeck} from '../api/deck'
 import Divider from '@mui/material/Divider'
-import {fetchUserRating, submitDeckRating, deleteDeckRating} from "../api/rating.js";
+import {deleteDeckRating, fetchUserRating, submitDeckRating} from "../api/rating.js";
 
 
 export default function DeckDetails() {
@@ -57,7 +58,7 @@ export default function DeckDetails() {
           setLoading(false)
         }
       })
-    
+
     // fetch the user's rating for this deck if authenticated
     if (isAuthenticated) {
       fetchUserRating(id)
@@ -178,7 +179,7 @@ export default function DeckDetails() {
                 precision={0.1}
                 readOnly
                 size="small"
-                emptyIcon={<StarIcon style={{ opacity: 0.3 }} fontSize="inherit" />}
+                emptyIcon={<StarIcon style={{opacity: 0.3}} fontSize="inherit"/>}
               />
               <Typography variant="body2" color="text.secondary">
                 {deck.rating_count ? `${deck.rating_avg.toFixed(1)}` : 'Pas de notes'}
@@ -188,7 +189,7 @@ export default function DeckDetails() {
 
             {isAuthenticated && (
               <>
-                <Divider orientation="vertical" flexItem sx={{ height: 20 }} />
+                <Divider orientation="vertical" flexItem sx={{height: 20}}/>
                 <Box display="flex" alignItems="center" gap={1}>
                   <Typography variant="body2" color="text.secondary">
                     Votre note :
@@ -202,7 +203,7 @@ export default function DeckDetails() {
                     }}
                     disabled={submittingRating}
                     size="small"
-                    emptyIcon={<StarIcon style={{ opacity: 0.3 }} fontSize="inherit" />}
+                    emptyIcon={<StarIcon style={{opacity: 0.3}} fontSize="inherit"/>}
                   />
                   {userRating > 0 && (
                     <Tooltip title="Supprimer votre note" arrow>
@@ -212,14 +213,14 @@ export default function DeckDetails() {
                         size="small"
                         color="error"
                         aria-label="Supprimer votre note"
-                        sx={{ ml: 0.5 }}
+                        sx={{ml: 0.5}}
                       >
-                        <DeleteIcon fontSize="small" />
+                        <DeleteIcon fontSize="small"/>
                       </IconButton>
                     </Tooltip>
                   )}
                   {submittingRating && (
-                    <CircularProgress size={12} />
+                    <CircularProgress size={12}/>
                   )}
                 </Box>
               </>
@@ -318,6 +319,11 @@ export default function DeckDetails() {
             )}
           </Grid>
         </section>
+
+        <Box mt={4}>
+          <Divider sx={{mb: 2}}/>
+          <DeckComments deckId={id}/>
+        </Box>
       </main>
     </Container>
   )
