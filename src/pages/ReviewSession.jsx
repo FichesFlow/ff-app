@@ -8,6 +8,7 @@ import SessionHeader from '../components/review/SessionHeader';
 import FlashCard from '../components/review/FlashCard';
 import ScoreButtons from '../components/review/ScoreButtons';
 import KeyboardInstructions from '../components/review/KeyboardInstructions';
+import Dictaphone from '../components/review/Dictaphone';
 
 export default function ReviewSession() {
   const location = useLocation();
@@ -25,7 +26,7 @@ export default function ReviewSession() {
     showAnswerHandler
   } = useReviewSession(deckId, mode, selectedCards, cardSource, dueLimit, newCount);
 
-  // Set up keyboard controls
+  // Set up keyboard controls (vous voudrez peut-être conditionner cela aussi)
   useKeyboardControls(showAnswer, showAnswerHandler, handleScoreSelection);
 
   const handleReturnToDecks = () => {
@@ -64,15 +65,19 @@ export default function ReviewSession() {
         totalCards={cards.length}
       />
 
-      <FlashCard card={currentCard} showAnswer={showAnswer}/>
-
-      <ScoreButtons
-        onScoreSelection={handleScoreSelection}
-        showAnswer={showAnswer}
-        onShowAnswer={showAnswerHandler}
-      />
-
-      <KeyboardInstructions/>
+      {mode === "dictaphone" ? (
+        <Dictaphone card={currentCard}/>
+      ) : (
+        <>
+          <FlashCard card={currentCard} showAnswer={showAnswer}/>
+          <ScoreButtons
+            onScoreSelection={handleScoreSelection}
+            showAnswer={showAnswer}
+            onShowAnswer={showAnswerHandler}
+          />
+          <KeyboardInstructions/>
+        </>
+      )}
     </Container>
   );
 }
