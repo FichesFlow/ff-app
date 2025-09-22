@@ -13,18 +13,18 @@ DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
 
   // Garde uniquement les propriétés sûres
   const safeStyles = data.attrValue
-    .split(';')
+    .split(';') // sépare chaque propriété
     .map(s => s.trim())
     .filter(Boolean)
     .map(s => {
-      const [propRaw, ...valParts] = s.split(':');
+      const [propRaw, ...valParts] = s.split(':'); // On sépare le nom et la valeur de la propriété
       if (!propRaw || valParts.length === 0) return null;
 
       const prop = propRaw.trim().toLowerCase();
-      const val = valParts.join(':').trim();
+      const val = valParts.join(':').trim(); // On reconstitue la valeur au cas où elle contient des ':'
 
       // rejette les valeurs dangereuses
-      if (/url\s*\(|expression|javascript:/i.test(val)) return null;
+      if (/url\s*\(|expression|javascript:|!important/i.test(val)) return null;
       if (!allowedProps.includes(prop)) return null;
 
       return `${prop}: ${val}`;
