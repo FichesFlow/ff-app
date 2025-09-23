@@ -87,9 +87,6 @@ export default function OutlinedCard(
             <Typography gutterBottom sx={{color: 'text.secondary', fontSize: 20}}>
               {sujet}
             </Typography>
-            <Typography variant="h5">
-              {niveau} <Box component="span" sx={{mx: 1}}>•</Box> {theme}
-            </Typography>
             <Box sx={scrollBox}>
               <MarkdownViewer source={description_recto || 'Description non fournie.'}/>
             </Box>
@@ -133,9 +130,6 @@ export default function OutlinedCard(
             <CardContent sx={{p: 0}}>
               <Typography gutterBottom sx={{color: 'text.secondary', fontSize: 20}}>
                 {sujet}
-              </Typography>
-              <Typography variant="h5">
-                {niveau} <Box component="span" sx={{mx: 1}}>•</Box> {theme}
               </Typography>
               <Box sx={scrollBox}>
                 <MarkdownViewer source={description_verso || 'Description non fournie.'}/>

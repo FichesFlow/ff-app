@@ -17,6 +17,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DueBadge from '../gamification/DueBadge'
 import {useTodayDueCount} from '../../hooks/useTodayDueCount'
 import SearchBar from '../ui/SearchBar.jsx';
+import ColorModeToggle from '../ui/ColorModeToggle.jsx';
 
 function HideOnScroll(props) {
   const {children} = props;
@@ -81,6 +82,8 @@ export default function Header(props) {
               )}
             </Box>
 
+            <ColorModeToggle sx={{ mr: 1 }} />
+
             {isAuthenticated ? (
               <Box sx={{flexGrow: 0}}>
                 <Tooltip title="Open settings">
@@ -116,7 +119,7 @@ export default function Header(props) {
                 </Menu>
               </Box>
             ) : (
-              <Box sx={{flexGrow: 0, ml: 'auto', display: 'flex', alignItems: 'center'}}>
+              <Box sx={{flexGrow: 0, display: 'flex', alignItems: 'center'}}>
                 <Link to="/login" style={{textDecoration: 'none', color: 'inherit'}}>
                   <Tooltip title="Login">
                     <AccountCircleIcon sx={{fontSize: 35}}/>
