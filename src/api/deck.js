@@ -11,6 +11,25 @@ const authHeaders = () => {
 }
 
 /**
+ * Fetch decks owned by the authenticated user.
+ * @param {Object} params - Optional query parameters (e.g. { page: 1, limit: 10 })
+ * @param {Object} options - Optional axios request options
+ * @returns {Promise<any>}
+ */
+export async function fetchMyDecks(params = {}, options = {}) {
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/my-decks`, {
+    params,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    ...options
+  });
+  return data;
+}
+
+
+/**
  * Fetch a paginated list of decks.
  * @param {Object} params - Optional query parameters (e.g. { page: 1 })
  * @param {Object} options - Optional axios request options

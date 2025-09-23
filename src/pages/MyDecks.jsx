@@ -8,7 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
 import Alert from '@mui/material/Alert';
-import {fetchDecks} from '../api/deck';
+import {fetchDecks, fetchMyDecks} from '../api/deck';
 import {useDocumentTitle} from '../hooks/useDocumentTitle';
 import DeckPreviewCard from "../components/deck/DeckPreviewCard.jsx";
 
@@ -23,7 +23,7 @@ export default function MyDecks() {
     const getMyDecks = async () => {
       try {
         setLoading(true);
-        const response = await fetchDecks({mine: 1});
+        const response = await fetchMyDecks();
         setDecks(response['hydra:member'] || response || []);
       } catch (err) {
         console.error('Failed to fetch decks:', err);
