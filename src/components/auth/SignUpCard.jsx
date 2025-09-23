@@ -12,9 +12,8 @@ import Link from '@mui/material/Link';
 import {Link as RouterLink, useNavigate} from 'react-router';
 import {AuthContainer} from "../shared/AuthContainer.jsx";
 import {AuthCard} from "../shared/AuthCard.jsx";
-import {toast, ToastContainer} from 'react-toastify';
+import {toast} from 'react-toastify';
 import {useAuth} from "../../context/AuthContext.jsx";
-import useTheme from '../../hooks/useTheme';
 
 export default function SignUpCard() {
   const [emailError, setEmailError] = useState(false);
@@ -25,7 +24,6 @@ export default function SignUpCard() {
   const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
 
   const {register, loading} = useAuth();
-  const currentTheme = useTheme();
   const navigate = useNavigate();
 
   const validateInputs = () => {
@@ -74,16 +72,10 @@ export default function SignUpCard() {
     const data = new FormData(event.currentTarget);
     try {
       await register(data.get('email'), data.get('password'), data.get('username'));
-      toast.success('Compte créé avec succès!', {
-        position: "bottom-right",
-        theme: currentTheme === 'dark' ? 'dark' : 'light'
-      });
+      toast.success('Compte créé avec succès!');
       navigate("/login");
     } catch {
-      toast.error('Échec de la création du compte. Veuillez réessayer.', {
-        position: "bottom-right",
-        theme: currentTheme === 'dark' ? 'dark' : 'light'
-      });
+      toast.error('Échec de la création du compte. Veuillez réessayer.');
     }
   };
 
@@ -191,7 +183,6 @@ export default function SignUpCard() {
           </Typography>
         </Box>
       </AuthCard>
-      <ToastContainer/>
     </AuthContainer>
   );
 }

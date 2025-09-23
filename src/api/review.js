@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = `${import.meta.env.VITE_API_URL}/review-queue`
+const BASE_URL = `${import.meta.env.VITE_API_URL}/review_queues`
 
 /**
  * Return Authorization header when a JWT token is stored in localStorage.
@@ -49,6 +49,122 @@ export async function removeFromRevisionQueue(queueItemId) {
   if (!queueItemId) throw new Error('removeFromRevisionQueue: queueItemId is required')
 
   const {data} = await axios.delete(`${BASE_URL}/${queueItemId}`, {
+    headers: authHeaders(),
+  })
+  return data
+}
+
+/**
+ * Get the user's review queues.
+ * @returns {Promise<any>}
+ */
+export async function getMyReviewQueues() {
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/my-review-queues`, {
+    headers: authHeaders(),
+  })
+  return data
+}
+
+/**
+ * Start a review session.
+ * @param {Object} params - Parameters for the review session
+ * @param {string} params.deckId - Deck UUID to review
+ * @param {string} params.mode - Review mode (e.g., "flashcard")
+ * @param {Array<string>} [params.cardIds] - Array of card UUIDs to include in the session (for manual mode)
+ * @param {number} [params.dueLimit] - Maximum number of due cards to include (for SRS mode)
+ * @param {number} [params.newCount] - Number of new cards to include (for SRS mode)
+ * @returns {Promise<any>}
+ */
+export async function startReviewSession({deckId, mode, cardIds, dueLimit, newCount}) {
+  if (!mode) {
+    throw new Error('startReviewSession: mode is required')
+  }
+
+  // Different payload based on review mode
+  let payload;
+  if (cardIds && Array.isArray(cardIds)) {
+    // Manual mode
+    payload = {
+      deck: deckId,
+      mode,
+      cards: cardIds
+    };
+  } else {
+    // SRS mode
+    payload = {
+      deck: deckId,
+      mode,
+      dueLimit: dueLimit || 0,
+      newCount: newCount || 0
+    };
+  }
+
+  const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/review_sessions/start`, payload, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+  })
+  return data
+}
+
+/**
+ * End a review session.
+ * @param sessionId
+ * @returns {Promise<any>}
+ */
+export async function endReviewSession(sessionId) {
+  if (!sessionId) throw new Error('endReviewSession: sessionId is required')
+
+  const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/review_sessions/${sessionId}/finish`, {}, {
+    headers: authHeaders(),
+  })
+  return data
+}
+
+/**
+ * Create a review event for a card in a session.
+ * @param sessionId
+ * @param cardId
+ * @param score
+ * @returns {Promise<any>}
+ */
+export async function createReviewEvent({sessionId, cardId, score}) {
+  if (!sessionId || !cardId || score === undefined) {
+    throw new Error('createReviewEvent: sessionId, cardId, and score are required')
+  }
+
+  const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/review_events`, {
+    session: `/api/review_sessions/${sessionId}`,
+    card: `/api/cards/${cardId}`,
+    score
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+  })
+  return data
+}
+
+
+/**
+ * Get the number of due cards for the user.
+ * @returns {Promise<any>}
+ */
+export async function getDue() {
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/review/due`, {
+    headers: authHeaders(),
+  })
+  return data
+}
+
+/**
+ * Get the total due count for today.
+ * @returns {Promise<any>}
+ */
+export async function getDueCount() {
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/review/due/count`, {
     headers: authHeaders(),
   })
   return data

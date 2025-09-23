@@ -18,7 +18,7 @@ export default function ProgressSection() {
       <Box mt={2}>
         <Button
           component={Link}
-          to="/flashcards/resume"
+          to="/review-queue"
           variant="contained"
           size="medium"
         >

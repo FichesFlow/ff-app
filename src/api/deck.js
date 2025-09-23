@@ -11,6 +11,25 @@ const authHeaders = () => {
 }
 
 /**
+ * Fetch decks owned by the authenticated user.
+ * @param {Object} params - Optional query parameters (e.g. { page: 1, limit: 10 })
+ * @param {Object} options - Optional axios request options
+ * @returns {Promise<any>}
+ */
+export async function fetchMyDecks(params = {}, options = {}) {
+  const {data} = await axios.get(`${import.meta.env.VITE_API_URL}/my-decks`, {
+    params,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    ...options
+  });
+  return data;
+}
+
+
+/**
  * Fetch a paginated list of decks.
  * @param {Object} params - Optional query parameters (e.g. { page: 1 })
  * @param {Object} options - Optional axios request options
@@ -31,6 +50,21 @@ export async function fetchDecks(params = {}, options = {}) {
 export async function fetchDeck(id) {
   if (!id) throw new Error('fetchDeck: id is required')
   const {data} = await axios.get(`${BASE_URL}/${id}`)
+  return data
+}
+
+/**
+ * Fetch a single deck by id, with review stats.
+ * @param {string} id - Deck UUID
+ */
+export async function fetchDeckWithStats(id) {
+  if (!id) throw new Error('fetchDeckWithStats: id is required')
+  const {data} = await axios.get(`${BASE_URL}/${id}/stats`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+  })
   return data
 }
 

@@ -24,6 +24,7 @@ export default function FichesPreviewGallery() {
               theme={flashcard.theme}
               description_recto={flashcard.description_recto}
               description_verso={flashcard.description_verso}
+              cardType="flashcard"
             />
           </Grid>
         ))}

@@ -56,7 +56,14 @@ export function AuthProvider({children}) {
     dispatch({type: 'LOGIN_START'});
     try {
       const {token} = await api.login(email, password);
-      const user = {"name": "Jean Dupont", "email": email, "avatarUrl": "https://i.pravatar.cc/300"}
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const user = {
+        id: payload.id,
+        email: payload.email,
+        username: payload.username,
+        roles: payload.roles,
+        avatarUrl: payload.avatarUrl || `https://i.pravatar.cc/300`,
+      };
       dispatch({type: 'LOGIN_SUCCESS', user, token});
       return true;
     } catch (error) {

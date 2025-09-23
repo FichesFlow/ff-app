@@ -8,8 +8,18 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import Button from "@mui/material/Button";
 import EditIcon from "@mui/icons-material/Edit";
 import CardActions from "@mui/material/CardActions";
+import Rating from "@mui/material/Rating";
+import Box from "@mui/material/Box";
 
-export default function DeckPreviewCard({deck, showEditButton = false, showMetadata = false}) {
+export default function DeckPreviewCard(
+  {
+    deck,
+    showEditButton = false,
+    showMetadata = false,
+    showSeeButton = true,
+    transition = true
+  }
+) {
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -39,11 +49,13 @@ export default function DeckPreviewCard({deck, showEditButton = false, showMetad
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: 6
-        }
+        ...(transition && {
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: 6
+          }
+        })
       }}
     >
       <CardContent sx={{flexGrow: 1}}>
@@ -56,6 +68,18 @@ export default function DeckPreviewCard({deck, showEditButton = false, showMetad
         >
           {deck.description || "Aucune description"}
         </Typography>
+        <Box sx={{mb: 2}}>
+          <Rating
+            value={deck.rating_avg || 0}
+            precision={0.1}
+            readOnly
+            size="small"
+            sx={{mb: 0.5}}
+          />
+          <Typography variant="caption" color="text.secondary" ml={1}>
+            {deck.rating_avg ? `${deck.rating_avg.toFixed(1)}/5` : 'Pas de notes'}
+          </Typography>
+        </Box>
         <Stack direction="row" spacing={1} sx={{mb: 1}}>
           {showMetadata && (
             <>
@@ -78,27 +102,31 @@ export default function DeckPreviewCard({deck, showEditButton = false, showMetad
           />
         </Stack>
       </CardContent>
-      <CardActions>
-        <Button
-          size="small"
-          component={Link}
-          to={`/decks/${deck.id}`}
-          startIcon={<VisibilityIcon/>}
-        >
-          Voir
-        </Button>
-        {showEditButton && (
-          <Button
-            size="small"
-            component={Link}
-            to={`/decks/${deck.id}/edit`}
-            color="primary"
-            startIcon={<EditIcon/>}
-          >
-            Modifier
-          </Button>
-        )}
-      </CardActions>
+      {(showSeeButton || showEditButton) &&
+        <CardActions>
+          {showSeeButton && (
+            <Button
+              size="small"
+              component={Link}
+              to={`/decks/${deck.id}`}
+              startIcon={<VisibilityIcon/>}
+            >
+              Voir
+            </Button>
+          )}
+          {showEditButton && (
+            <Button
+              size="small"
+              component={Link}
+              to={`/decks/${deck.id}/edit`}
+              color="primary"
+              startIcon={<EditIcon/>}
+            >
+              Modifier
+            </Button>
+          )}
+        </CardActions>
+      }
     </Card>
   )
 }

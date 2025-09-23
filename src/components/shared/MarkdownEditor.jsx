@@ -32,6 +32,10 @@ import { Button, Menu, MenuItem, ListItemIcon,ListItemText,Tooltip, IconButton }
 import FormatColorFillIcon from '@mui/icons-material/FormatColorFill'
 import PaletteIcon         from '@mui/icons-material/Palette';
 
+// Sécurité : nettoyage du HTML généré par MDXEditor
+import sanitizeHtml from '../../utils/sanitizeMarkdown.js'  
+
+
 const ListeColor = [
   { label: 'Aucun',  hex: null },
   { label: 'Jaune',  hex: '#FFFF00' },
@@ -216,9 +220,15 @@ export default forwardRef(function MarkdownEditor(props, ref) {
 
   return (
     <MDXEditor
-      ref={editorRef}
-      markdown={props.markdown || '# Hello world'}
-      plugins={plugins}
-    />
+  ref={editorRef}
+  markdown={props.markdown || '# Hello world'}
+  onChange={(md) => {
+        const safe = sanitizeHtml(md)
+        // met à jour le contenu avec uniquement les balises autorisées
+        editorRef.current?.setMarkdown(safe)
+      }}
+  plugins={plugins}
+/>
+
   )
 })
