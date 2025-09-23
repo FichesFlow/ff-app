@@ -17,6 +17,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DueBadge from '../gamification/DueBadge'
 import {useTodayDueCount} from '../../hooks/useTodayDueCount'
 import SearchBar from '../ui/SearchBar.jsx';
+import ColorModeToggle from '../ui/ColorModeToggle.jsx';
 
 function HideOnScroll(props) {
   const {children} = props;
@@ -80,6 +81,8 @@ export default function Header(props) {
                 <DueBadge count={dueCount}/>
               )}
             </Box>
+
+            <ColorModeToggle sx={{ mr: 1 }} />
 
             {isAuthenticated ? (
               <Box sx={{flexGrow: 0}}>
