@@ -13,6 +13,7 @@ import {createDeck, fetchDeck, updateDeck} from "../api/deck.js";
 import {useNavigate, useParams} from 'react-router';
 import CircularProgress from '@mui/material/CircularProgress';
 import {importFileForCards} from "../api/import.js";
+import {Divider, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Typography} from '@mui/material';
 
 export default function DeckForm() {
   const {id} = useParams();
@@ -29,9 +30,11 @@ export default function DeckForm() {
   const [user, setUser] = useState("");
 
   const markdownRef = useRef(null)
+  const versoMarkdownRef = useRef(null)
   const fileInputRef = useRef(null)
   const [cards, setCards] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [cardType, setCardType] = useState('single') // 'flashcard' or 'single'
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isImporting, setIsImporting] = useState(false);
 
@@ -59,10 +62,12 @@ export default function DeckForm() {
           const transformedCards = deckData.cards.map(card => {
             const frontSide = card.cardSides.find(side => side.side === "front");
             const backSide = card.cardSides.find(side => side.side === "back");
+            const hasRecto = frontSide?.cardBlock?.content && frontSide.cardBlock.content.trim() !== '';
             return {
               id: crypto.randomUUID(),
               content_recto: frontSide?.cardBlock?.content || '',
               content_verso: backSide?.cardBlock?.content || '',
+              cardType: hasRecto ? 'flashcard' : 'single',
               position: card.position
             };
           });
@@ -83,16 +88,36 @@ export default function DeckForm() {
 
   /* create or update card */
   const handleSaveCard = () => {
-    const md = markdownRef.current?.getMarkdown()
-    if (!md || md.trim() === '') return
+    const rectoMd = markdownRef.current?.getMarkdown() || ''
+    const versoMd = versoMarkdownRef.current?.getMarkdown() || ''
+
+    if (cardType === 'flashcard' && (!rectoMd.trim() || !versoMd.trim())) {
+      toast.error('Veuillez remplir le recto et le verso pour une flashcard')
+      return
+    }
+
+    if (cardType === 'single' && !rectoMd.trim()) {
+      toast.error('Veuillez remplir le contenu de la fiche')
+      return
+    }
+
+    console.log({rectoMd, versoMd, cardType})
+
+    const cardData = {
+      content_recto: rectoMd,
+      content_verso: versoMd,
+      cardType: cardType
+    }
 
     if (editingId) {
-      setCards((prev) => prev.map((c) => (c.id === editingId ? {...c, content_recto: md} : c)))
+      setCards((prev) => prev.map((c) => (c.id === editingId ? {...c, ...cardData} : c)))
       setEditingId(null)
     } else {
-      setCards((prev) => [...prev, {id: crypto.randomUUID(), content_recto: md, content_verso: ''}])
+      setCards((prev) => [...prev, {id: crypto.randomUUID(), ...cardData}])
     }
-    markdownRef.current.setMarkdown('')
+
+    markdownRef.current?.setMarkdown('')
+    versoMarkdownRef.current?.setMarkdown('')
   }
 
   /* edit existing */
@@ -100,6 +125,8 @@ export default function DeckForm() {
     const card = cards.find((c) => c.id === id)
     if (!card) return
     markdownRef.current?.setMarkdown(card.content_recto)
+    versoMarkdownRef.current?.setMarkdown(card.content_verso)
+    setCardType(card.cardType)
     setEditingId(id)
   }
 
@@ -108,6 +135,7 @@ export default function DeckForm() {
     setCards((prev) => prev.filter((c) => c.id !== id))
     if (editingId === id) {
       markdownRef.current?.setMarkdown('')
+      versoMarkdownRef.current?.setMarkdown('')
       setEditingId(null)
     }
   }
@@ -135,28 +163,28 @@ export default function DeckForm() {
       const data = await importFileForCards(file);
       const {cards: importedCards, cardCount} = data;
 
-      // Transform imported cards to match the expected format
       const transformedCards = importedCards.map((card, index) => {
         const getCardContent = () => {
           if (typeof card === 'object' && card?.front) {
-            return {recto: card.front, verso: card.back || ''};
+            return {recto: card.front, verso: card.back || '', type: card.front ? 'flashcard' : 'single'};
           }
           if (typeof card === 'string') {
-            return {recto: card, verso: ''};
+            return {recto: card, verso: '', type: 'single'};
           }
-          return {recto: card.content || JSON.stringify(card), verso: ''};
+          return {recto: card.content || JSON.stringify(card), verso: '', type: 'single'};
         };
 
-        const {recto, verso} = getCardContent();
+        const {recto, verso, type} = getCardContent();
+
 
         return {
           id: crypto.randomUUID(),
           content_recto: recto,
           content_verso: verso,
+          cardType: type,
           position: cards.length + index
         };
       });
-
 
       setCards(prev => [...prev, ...transformedCards]);
       toast.success(`${cardCount} fiche(s) importée(s) avec succès !`);
@@ -170,7 +198,6 @@ export default function DeckForm() {
       setIsImporting(false);
     }
   };
-
 
   /* send deck */
   const handleSubmitDeck = async () => {
@@ -189,20 +216,29 @@ export default function DeckForm() {
       status,
       cards: cards.map((c, index) => ({
         position: index,
-        cardSides: [
-          {
-            side: 'front',
-            cardBlock: {
-              content: c.content_recto
+        cardSides: c.cardType === 'flashcard'
+          ? [
+            {
+              side: 'front',
+              cardBlock: {
+                content: c.content_recto
+              }
+            },
+            {
+              side: 'back',
+              cardBlock: {
+                content: c.content_verso
+              }
             }
-          },
-          {
-            side: 'back',
-            cardBlock: {
-              content: c.content_verso
+          ]
+          : [
+            {
+              side: 'front',
+              cardBlock: {
+                content: c.content_recto
+              }
             }
-          }
-        ]
+          ]
       }))
     }
 
@@ -259,8 +295,49 @@ export default function DeckForm() {
         setStatus={setStatus}
       />
 
-      <Box bgcolor="#fff" p={2} borderRadius={1} boxShadow={3}>
+      <Box bgcolor="#fff" p={3} borderRadius={1} boxShadow={3} mb={2}>
+        <Typography variant="h6" gutterBottom>
+          {editingId ? 'Modifier la fiche' : 'Ajouter une fiche'}
+        </Typography>
+
+        <FormControl component="fieldset" sx={{mb: 3}}>
+          <FormLabel component="legend">Type de fiche</FormLabel>
+          <RadioGroup
+            row
+            value={cardType}
+            onChange={(e) => setCardType(e.target.value)}
+          >
+            <FormControlLabel
+              value="single"
+              control={<Radio/>}
+              label="Fiche simple"
+            />
+            <FormControlLabel
+              value="flashcard"
+              control={<Radio/>}
+              label="Flashcard (recto + verso)"
+            />
+          </RadioGroup>
+        </FormControl>
+
+        <Typography variant="subtitle1" gutterBottom sx={{fontWeight: 'medium'}}>
+          Recto
+        </Typography>
         <MarkdownEditor ref={markdownRef}/>
+
+        {cardType === 'flashcard' && (
+          <>
+            <Typography variant="subtitle1" gutterBottom sx={{fontWeight: 'medium'}}>
+              Verso
+            </Typography>
+            <Box mb={2}>
+              <MarkdownEditor ref={versoMarkdownRef}/>
+            </Box>
+            <Divider sx={{my: 2}}/>
+          </>
+        )}
+
+
       </Box>
 
       <Stack direction="row" spacing={2} sx={{mt: 2, mb: 3}}>
@@ -271,6 +348,21 @@ export default function DeckForm() {
         >
           {editingId ? 'Mettre à jour la fiche' : 'Ajouter une fiche'}
         </Button>
+
+        {editingId && (
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setEditingId(null)
+              markdownRef.current?.setMarkdown('')
+              versoMarkdownRef.current?.setMarkdown('')
+              setCardType('single') // Reset to default when canceling edit
+            }}
+            disabled={isSubmitting || isImporting}
+          >
+            Annuler
+          </Button>
+        )}
 
         <Button
           variant="outlined"
@@ -306,8 +398,9 @@ export default function DeckForm() {
               description_recto={card.content_recto}
               description_verso={card.content_verso || "Description du verso de la fiche (optionnel)"}
               nom={user.name}
+              cardType={card.cardType}
             />
-            <Box mt={1} display="flex" gap={1} justifyContent="center">
+            <Box mt={1} display="flex" gap={1} justifyContent="center" flexWrap="wrap">
               <Button
                 size="small"
                 variant="outlined"
