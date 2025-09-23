@@ -119,7 +119,7 @@ export default function Header(props) {
                 </Menu>
               </Box>
             ) : (
-              <Box sx={{flexGrow: 0, ml: 'auto', display: 'flex', alignItems: 'center'}}>
+              <Box sx={{flexGrow: 0, display: 'flex', alignItems: 'center'}}>
                 <Link to="/login" style={{textDecoration: 'none', color: 'inherit'}}>
                   <Tooltip title="Login">
                     <AccountCircleIcon sx={{fontSize: 35}}/>
